@@ -6,7 +6,9 @@
 <title>🎡 عجلة التحديات</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+    box-sizing:border-box;
+}
 
 body{
     margin:0;
@@ -25,12 +27,14 @@ body{
     text-align:center;
 }
 
-.page.active{display:flex}
+.page.active{
+    display:flex;
+}
 
 .card{
     width:100%;
     max-width:600px;
-    background:rgba(25,23,55,.92);
+    background:rgba(25,23,55,.94);
     border:1px solid rgba(255,255,255,.08);
     border-radius:28px;
     padding:30px 20px;
@@ -69,6 +73,11 @@ button{
 
 button:active{
     transform:scale(.96);
+}
+
+button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
 }
 
 .start{
@@ -165,6 +174,9 @@ button:active{
     transition:transform 4.3s cubic-bezier(.12,.8,.18,1);
 }
 
+/*
+   القطاعات
+*/
 .segment{
     position:absolute;
     width:50%;
@@ -172,21 +184,33 @@ button:active{
     left:50%;
     top:50%;
     transform-origin:0 0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
 }
 
+/*
+   أسماء اللاعبين:
+   أفقية ومستقيمة دائمًا.
+*/
 .segment-name{
     position:absolute;
-    width:145px;
+    left:70px;
+    top:70px;
+
+    width:125px;
+
     text-align:center;
+    white-space:nowrap;
+
     font-size:17px;
     font-weight:900;
     color:white;
-    text-shadow:0 2px 5px #000;
-    white-space:nowrap;
-    transform:translate(-50%,-50%);
+
+    text-shadow:
+        0 2px 4px rgba(0,0,0,.9);
+
+    transform:
+        translate(-50%,-50%)
+        rotate(0deg)
+        skewY(0deg);
 }
 
 .pointer{
@@ -195,11 +219,14 @@ button:active{
     left:50%;
     top:50%;
     transform:translate(-50%,-50%);
+
     width:0;
     height:0;
+
     border-left:18px solid transparent;
     border-right:18px solid transparent;
     border-top:35px solid #ffd43b;
+
     filter:drop-shadow(0 3px 4px #000);
 }
 
@@ -209,36 +236,58 @@ button:active{
     left:50%;
     top:50%;
     transform:translate(-50%,-50%);
+
     width:54px;
     height:54px;
+
     border-radius:50%;
     background:#18142e;
     border:4px solid #ffd43b;
+
     display:flex;
     align-items:center;
     justify-content:center;
+
     font-size:24px;
 }
 
+/*
+   اسم التحدي على اللاعب
+*/
 .turn-name{
     display:none;
+
     background:linear-gradient(135deg,#6d4aff,#9b5cff);
-    padding:13px 20px;
+
+    padding:13px 22px;
     border-radius:16px;
+
     margin:8px auto 15px;
-    font-size:21px;
+
+    font-size:22px;
     font-weight:900;
+
     width:fit-content;
     max-width:100%;
-    box-shadow:0 8px 25px rgba(109,74,255,.25);
+
+    box-shadow:
+        0 8px 25px rgba(109,74,255,.25);
 }
 
+/*
+   صندوق التحدي
+*/
 .challenge-box{
     display:none;
+
     background:#17142d;
+
     border:1px solid #393554;
+
     border-radius:20px;
+
     padding:20px;
+
     margin-top:15px;
 }
 
@@ -282,9 +331,13 @@ button:active{
 .result{
     display:flex;
     justify-content:space-between;
+
     background:#211d3d;
+
     padding:15px 18px;
+
     border-radius:14px;
+
     font-size:18px;
     font-weight:bold;
 }
@@ -306,451 +359,892 @@ button:active{
 
 <body>
 
-<!-- الصفحة الأولى -->
+<!-- =========================
+     الصفحة الأولى
+========================= -->
+
 <section class="page active" id="s1">
+
     <div class="card">
+
         <h1>🎡 عجلة التحديات</h1>
-        <div class="subtitle">لعبة جماعية سريعة وممتعة 🔥</div>
-        <div class="creator">إنشاء وتصميم عادل</div>
-        <button class="start" onclick="go('s2')">بدء اللعبة</button>
+
+        <div class="subtitle">
+            لعبة جماعية سريعة وممتعة 🔥
+        </div>
+
+        <div class="creator">
+            إنشاء وتصميم عادل
+        </div>
+
+        <button class="start" onclick="go('s2')">
+            بدء اللعبة
+        </button>
+
     </div>
+
 </section>
 
-<!-- أسماء اللاعبين -->
+
+<!-- =========================
+     صفحة أسماء اللاعبين
+========================= -->
+
 <section class="page" id="s2">
+
     <div class="card">
+
         <h2>ضع الأسماء</h2>
 
         <div class="players" id="players"></div>
 
-        <button class="add" onclick="addPlayer()">＋ إضافة لاعب</button>
+        <button class="add" onclick="addPlayer()">
+            ＋ إضافة لاعب
+        </button>
 
-        <div class="small">يمكنك إضافة حتى 12 لاعب</div>
-
-        <button class="next" onclick="goCategories()">التالي</button>
-    </div>
-</section>
-
-<!-- اختيار التحديات -->
-<section class="page" id="s3">
-    <div class="card">
-        <h2>اختر نوع التحدي الي تبيه</h2>
-
-        <div class="category-grid">
-            <button class="category" data-cat="مضحكة 😂" onclick="toggleCat(this)">مضحكة 😂</button>
-            <button class="category" data-cat="ذكاء 🧠" onclick="toggleCat(this)">ذكاء 🧠</button>
-            <button class="category" data-cat="تمثيل 🎭" onclick="toggleCat(this)">تمثيل 🎭</button>
-            <button class="category" data-cat="سرعة ⚡️" onclick="toggleCat(this)">سرعة ⚡️</button>
-            <button class="category" data-cat="جريئة 😈" onclick="toggleCat(this)">جريئة 😈</button>
-            <button class="category" data-cat="تحديات 👥" onclick="toggleCat(this)">تحديات 👥</button>
+        <div class="small">
+            يمكن إضافة حتى 12 لاعب
         </div>
 
-        <button class="next" onclick="startGame()">ابدأ 🎡</button>
+        <button class="next" onclick="goCategories()">
+            التالي
+        </button>
+
     </div>
+
 </section>
 
-<!-- اللعبة -->
-<section class="page" id="s4">
+
+<!-- =========================
+     اختيار أنواع التحديات
+========================= -->
+
+<section class="page" id="s3">
+
     <div class="card">
-        <h2>🎡 عجلة التحديات</h2>
+
+        <h2>
+            اختر نوع التحدي الي تبيه
+        </h2>
+
+        <div class="category-grid">
+
+            <button
+                class="category"
+                data-cat="مضحكة 😂"
+                onclick="toggleCat(this)">
+                مضحكة 😂
+            </button>
+
+            <button
+                class="category"
+                data-cat="ذكاء 🧠"
+                onclick="toggleCat(this)">
+                ذكاء 🧠
+            </button>
+
+            <button
+                class="category"
+                data-cat="تمثيل 🎭"
+                onclick="toggleCat(this)">
+                تمثيل 🎭
+            </button>
+
+            <button
+                class="category"
+                data-cat="سرعة ⚡️"
+                onclick="toggleCat(this)">
+                سرعة ⚡️
+            </button>
+
+            <button
+                class="category"
+                data-cat="جريئة 😈"
+                onclick="toggleCat(this)">
+                جريئة 😈
+            </button>
+
+            <button
+                class="category"
+                data-cat="تحديات 👥"
+                onclick="toggleCat(this)">
+                تحديات 👥
+            </button>
+
+        </div>
+
+        <button class="next" onclick="startGame()">
+            ابدأ 🎡
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     صفحة اللعبة
+========================= -->
+
+<section class="page" id="s4">
+
+    <div class="card">
+
+        <h2>
+            🎡 عجلة التحديات
+        </h2>
 
         <div class="wheel-area">
 
             <div class="wheel-wrap">
+
                 <div class="pointer"></div>
-                <div class="center-dot">🎯</div>
+
+                <div class="center-dot">
+                    🎯
+                </div>
+
                 <div class="wheel" id="wheel"></div>
+
             </div>
 
-            <button class="start" id="spinBtn" onclick="spinWheel()">
+
+            <button
+                class="start"
+                id="spinBtn"
+                onclick="spinWheel()">
+
                 لف العجلة 🎡
+
             </button>
 
-            <!-- اسم صاحب الدور -->
-            <div class="turn-name" id="turnName"></div>
+
+            <!--
+                هنا يظهر:
+                🔥 تحدي عادل
+            -->
+
+            <div
+                class="turn-name"
+                id="turnName">
+            </div>
+
 
             <!-- التحدي -->
-            <div class="challenge-box" id="challengeBox">
+
+            <div
+                class="challenge-box"
+                id="challengeBox">
 
                 <div class="challenge-title">
                     🎯 التحدي
                 </div>
 
-                <div class="challenge-text" id="challengeText"></div>
+                <div
+                    class="challenge-text"
+                    id="challengeText">
+                </div>
 
                 <div class="challenge-buttons">
-                    <button class="done" onclick="finishChallenge()">
+
+                    <button
+                        class="done"
+                        onclick="finishChallenge()">
                         تم ✅
                     </button>
 
-                    <button class="skip" onclick="skipChallenge()">
+                    <button
+                        class="skip"
+                        onclick="skipChallenge()">
                         سكيب ⏭️
                     </button>
+
                 </div>
 
             </div>
+
         </div>
+
     </div>
+
 </section>
 
-<!-- النتائج -->
+
+<!-- =========================
+     صفحة النتائج
+========================= -->
+
 <section class="page" id="s5">
+
     <div class="card">
-        <h2>🏆 النتائج</h2>
 
-        <div class="winner" id="winner"></div>
+        <h2>
+            🏆 النتائج
+        </h2>
 
-        <div class="result-list" id="results"></div>
+        <div
+            class="winner"
+            id="winner">
+        </div>
 
-        <button class="start" onclick="location.reload()">
+        <div
+            class="result-list"
+            id="results">
+        </div>
+
+        <button
+            class="start"
+            onclick="location.reload()">
+
             لعب مرة ثانية 🔄
+
         </button>
+
     </div>
+
 </section>
+
 
 <script>
 
+/* =========================
+   التحديات
+========================= */
+
 const data = {
 
-"مضحكة 😂":[
-"قل جملة بصوت روبوت لمدة 10 ثواني 🤖",
-"مثّل أنك مذيع أخبار وتقول خبرًا مضحكًا 📺",
-"قل نكتة بدون ما تضحك 😂",
-"اعمل صوت حيوان وعلى الباقين تخمينه 🐯",
-"تكلم كأنك طفل لمدة 15 ثانية 🧒",
-"قل جملة عادية بطريقة درامية جدًا 🎭"
-],
+    "مضحكة 😂":[
+        "قل جملة بصوت روبوت لمدة 10 ثواني 🤖",
+        "مثّل أنك مذيع أخبار وتقول خبرًا مضحكًا 📺",
+        "قل نكتة بدون ما تضحك 😂",
+        "اعمل صوت حيوان وعلى الباقين تخمينه 🐯",
+        "تكلم كأنك طفل لمدة 15 ثانية 🧒",
+        "قل جملة عادية بطريقة درامية جدًا 🎭"
+    ],
 
-"ذكاء 🧠":[
-"اذكر 5 أشياء تبدأ بحرف م خلال 5 ثواني 🧠",
-"اذكر 5 مدن بسرعة 🌍",
-"قل 7 ألوان بسرعة 🎨",
-"قل 3 أمثال شعبية بسرعة",
-"اذكر 4 أشياء موجودة في المطبخ خلال 5 ثواني 🍳",
-"اذكر 5 حيوانات تبدأ بحرف أ 🐯"
-],
+    "ذكاء 🧠":[
+        "اذكر 5 أشياء تبدأ بحرف م خلال 5 ثواني 🧠",
+        "اذكر 5 مدن بسرعة 🌍",
+        "قل 7 ألوان بسرعة 🎨",
+        "قل 3 أمثال شعبية بسرعة",
+        "اذكر 4 أشياء موجودة في المطبخ خلال 5 ثواني 🍳",
+        "اذكر 5 حيوانات تبدأ بحرف أ 🐯"
+    ],
 
-"تمثيل 🎭":[
-"مثّل شخصية كرتونية وعلى الباقين تخمينها 🎬",
-"مثّل أنك فزت بمليون ريال 💰",
-"مثّل أنك بائع وتحاول بيع شيء عشوائي 🛒",
-"مثّل مشهد تأخرك عن موعد مهم ⏰",
-"مثّل أنك لاعب مشهور والكل يحاول يعرف من أنت ⭐",
-"مثّل أنك مذيع في مباراة نهائية 🎤"
-],
+    "تمثيل 🎭":[
+        "مثّل شخصية كرتونية وعلى الباقين تخمينها 🎬",
+        "مثّل أنك فزت بمليون ريال 💰",
+        "مثّل أنك بائع وتحاول بيع شيء عشوائي 🛒",
+        "مثّل مشهد تأخرك عن موعد مهم ⏰",
+        "مثّل أنك لاعب مشهور والكل يحاول يعرف من أنت ⭐",
+        "مثّل أنك مذيع في مباراة نهائية 🎤"
+    ],
 
-"سرعة ⚡️":[
-"قل 5 أكلات في 5 ثواني 🍕",
-"قل 5 أسماء خلال 5 ثواني ⚡",
-"قل كلمة صعبة 5 مرات بسرعة 😅",
-"اذكر 5 أشياء لونها أبيض بسرعة ⚪",
-"اذكر 5 أشياء تستخدمها يوميًا خلال 5 ثواني",
-"قل أسماء 5 دول بأسرع ما تستطيع 🌍"
-],
+    "سرعة ⚡️":[
+        "قل 5 أكلات في 5 ثواني 🍕",
+        "قل 5 أسماء خلال 5 ثواني ⚡",
+        "قل كلمة صعبة 5 مرات بسرعة 😅",
+        "اذكر 5 أشياء لونها أبيض بسرعة ⚪",
+        "اذكر 5 أشياء تستخدمها يوميًا خلال 5 ثواني",
+        "قل أسماء 5 دول بأسرع ما تستطيع 🌍"
+    ],
 
-"جريئة 😈":[
-"قل جملة وكأنك شخصية شريرة 😈",
-"تكلم بلهجة مختلفة لمدة 20 ثانية 🗣️",
-"قل اسمك وكأنك في فيلم أكشن 🎬",
-"اعمل تمثالًا ثابتًا لمدة 15 ثانية 🗿",
-"قل جملة عادية بصوت غامض جدًا 👀",
-"تكلم لمدة 10 ثواني بدون استخدام كلمة نعم أو لا"
-],
+    "جريئة 😈":[
+        "قل جملة وكأنك شخصية شريرة 😈",
+        "تكلم بلهجة مختلفة لمدة 20 ثانية 🗣️",
+        "قل اسمك وكأنك في فيلم أكشن 🎬",
+        "اعمل تمثالًا ثابتًا لمدة 15 ثانية 🗿",
+        "قل جملة عادية بصوت غامض جدًا 👀",
+        "تكلم لمدة 10 ثواني بدون استخدام كلمة نعم أو لا"
+    ],
 
-"تحديات 👥":[
-"اختر لاعبًا وقل له 3 أشياء إيجابية عنه ⭐",
-"صف لاعبًا بدون ذكر اسمه وعلى الباقين تخمينه 👀",
-"اختر لاعبًا ليعطيك كلمة واستخدمها في جملة مضحكة 🎯",
-"حاول ألا تضحك لمدة 10 ثواني 😂",
-"اختر لاعبًا وقل له تحديًا بسيطًا وآمنًا لمدة 10 ثواني",
-"اختر لاعبًا وقل له موقفًا مضحكًا حصل لك"
-]
+    "تحديات 👥":[
+        "اختر لاعبًا وقل له 3 أشياء إيجابية عنه ⭐",
+        "صف لاعبًا بدون ذكر اسمه وعلى الباقين تخمينه 👀",
+        "اختر لاعبًا ليعطيك كلمة واستخدمها في جملة مضحكة 🎯",
+        "حاول ألا تضحك لمدة 10 ثواني 😂",
+        "اختر لاعبًا وقل له تحديًا بسيطًا وآمنًا لمدة 10 ثواني",
+        "اختر لاعبًا وقل له موقفًا مضحكًا حصل لك"
+    ]
 
 };
 
+
+/* =========================
+   المتغيرات
+========================= */
+
 let playerInputs = [];
+
 let players = [];
+
 let selectedCategories = [];
+
 let scores = {};
+
 let wheelRotation = 0;
+
 let currentPlayerIndex = -1;
+
 let spinning = false;
 
+
+/* ألوان العجلة */
+
 const colors = [
-"#ef4444",
-"#8b5cf6",
-"#06b6d4",
-"#22c55e",
-"#f59e0b",
-"#ec4899",
-"#3b82f6",
-"#14b8a6",
-"#f97316",
-"#6366f1",
-"#84cc16",
-"#e11d48"
+    "#ef4444",
+    "#8b5cf6",
+    "#06b6d4",
+    "#22c55e",
+    "#f59e0b",
+    "#ec4899",
+    "#3b82f6",
+    "#14b8a6",
+    "#f97316",
+    "#6366f1",
+    "#84cc16",
+    "#e11d48"
 ];
 
+
+/* =========================
+   الانتقال بين الصفحات
+========================= */
+
 function go(id){
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+
+    document
+        .querySelectorAll(".page")
+        .forEach(page=>{
+            page.classList.remove("active");
+        });
+
+    document
+        .getElementById(id)
+        .classList.add("active");
 }
+
+
+/* =========================
+   إضافة لاعب
+========================= */
 
 function addPlayer(){
 
     if(playerInputs.length >= 12){
+
         alert("وصلت للحد الأقصى 12 لاعب");
+
         return;
     }
 
-    const row = document.createElement("div");
-    row.className = "player-row";
 
-    const number = document.createElement("span");
-    number.textContent = (playerInputs.length + 1) + "-";
+    const row =
+        document.createElement("div");
 
-    const input = document.createElement("input");
-    input.placeholder = "اسم اللاعب";
+    row.className =
+        "player-row";
+
+
+    const number =
+        document.createElement("span");
+
+    number.textContent =
+        (playerInputs.length + 1) + "-";
+
+
+    const input =
+        document.createElement("input");
+
+    input.placeholder =
+        "اسم اللاعب";
+
 
     row.appendChild(number);
+
     row.appendChild(input);
 
-    document.getElementById("players").appendChild(row);
+
+    document
+        .getElementById("players")
+        .appendChild(row);
+
 
     playerInputs.push(input);
 }
 
+
+/* أربعة لاعبين بالبداية */
+
 addPlayer();
 addPlayer();
 addPlayer();
 addPlayer();
+
+
+/* =========================
+   حفظ أسماء اللاعبين
+========================= */
 
 function goCategories(){
 
-    players = playerInputs
-        .map(input => input.value.trim())
-        .filter(name => name !== "");
+    players =
+        playerInputs
+        .map(input=>input.value.trim())
+        .filter(name=>name !== "");
+
 
     if(players.length < 2){
+
         alert("لازم تضيف لاعبين على الأقل");
+
         return;
     }
 
+
     scores = {};
 
-    players.forEach(name => {
+
+    players.forEach(name=>{
         scores[name] = 0;
     });
 
+
     go("s3");
 }
+
+
+/* =========================
+   اختيار التحديات
+========================= */
 
 function toggleCat(button){
 
     button.classList.toggle("selected");
 
-    const cat = button.dataset.cat;
+
+    const cat =
+        button.dataset.cat;
+
 
     if(selectedCategories.includes(cat)){
-        selectedCategories = selectedCategories.filter(x => x !== cat);
+
+        selectedCategories =
+            selectedCategories.filter(
+                x=>x !== cat
+            );
+
     }else{
+
         selectedCategories.push(cat);
     }
 }
 
+
+/* =========================
+   بدء اللعبة
+========================= */
+
 function startGame(){
 
     if(selectedCategories.length === 0){
+
         alert("اختر نوع تحدي واحد على الأقل");
+
         return;
     }
 
+
     createWheel();
+
     go("s4");
 }
 
+
+/* =========================
+   إنشاء العجلة
+========================= */
+
 function createWheel(){
 
-    const wheel = document.getElementById("wheel");
+    const wheel =
+        document.getElementById("wheel");
+
+
     wheel.innerHTML = "";
 
-    const n = players.length;
-    const angle = 360 / n;
+
+    const n =
+        players.length;
+
+
+    const angle =
+        360 / n;
+
 
     const gradientParts = [];
 
+
     players.forEach((name,i)=>{
 
-        const start = i * angle;
-        const end = (i + 1) * angle;
+        const start =
+            i * angle;
+
+        const end =
+            (i + 1) * angle;
+
 
         gradientParts.push(
             `${colors[i % colors.length]} ${start}deg ${end}deg`
         );
 
-        const segment = document.createElement("div");
-        segment.className = "segment";
+
+        /*
+           القطاع نفسه
+        */
+
+        const segment =
+            document.createElement("div");
+
+        segment.className =
+            "segment";
+
 
         segment.style.transform =
             `rotate(${start}deg) skewY(${90-angle}deg)`;
 
-        const nameElement = document.createElement("div");
-        nameElement.className = "segment-name";
-        nameElement.textContent = name;
 
         /*
-        نخلي الاسم أفقي ومستقيم
-        مهما كان مكانه داخل العجلة
+           اسم اللاعب
         */
+
+        const nameElement =
+            document.createElement("div");
+
+        nameElement.className =
+            "segment-name";
+
+
+        nameElement.textContent =
+            name;
+
+
+        /*
+           مهم:
+           الاسم لا يدور مع القطاع.
+           نخليه أفقي ومستقيم.
+        */
+
         nameElement.style.transform =
             `translate(-50%,-50%) skewY(${-(90-angle)}deg) rotate(${-start}deg)`;
 
-        /*
-        وضع الاسم داخل القطاع
-        */
-        nameElement.style.left = "50%";
-        nameElement.style.top = "58%";
 
-        segment.appendChild(nameElement);
-        wheel.appendChild(segment);
+        /*
+           إلغاء دوران الاسم
+           وإبقاؤه مستقيم
+        */
+
+        nameElement.style.transform =
+            "translate(-50%,-50%) rotate(0deg)";
+
+
+        /*
+           وضع الاسم داخل اللون
+        */
+
+        nameElement.style.left =
+            "70px";
+
+        nameElement.style.top =
+            "70px";
+
+
+        segment.appendChild(
+            nameElement
+        );
+
+
+        wheel.appendChild(
+            segment
+        );
 
     });
+
 
     wheel.style.background =
         `conic-gradient(${gradientParts.join(",")})`;
 }
 
+
+/* =========================
+   لف العجلة
+========================= */
+
 function spinWheel(){
 
     if(spinning) return;
 
+
     spinning = true;
 
-    document.getElementById("spinBtn").disabled = true;
-    document.getElementById("challengeBox").style.display = "none";
-    document.getElementById("turnName").style.display = "none";
 
-    const n = players.length;
-    const selected = Math.floor(Math.random() * n);
+    document
+        .getElementById("spinBtn")
+        .disabled = true;
+
+
+    document
+        .getElementById("challengeBox")
+        .style.display = "none";
+
+
+    document
+        .getElementById("turnName")
+        .style.display = "none";
+
+
+    const n =
+        players.length;
+
 
     /*
-    اللاعب الذي وقفت عليه العجلة
-    يصبح صاحب الدور فعليًا
+       اختيار اللاعب
     */
-    currentPlayerIndex = selected;
 
-    const angle = 360 / n;
+    const selected =
+        Math.floor(Math.random() * n);
 
-    const target = 360 - (
-        selected * angle + angle / 2
-    );
 
-    wheelRotation += 360 * 5 + target;
+    /*
+       حفظ اللاعب المختار
+    */
 
-    const wheel = document.getElementById("wheel");
+    currentPlayerIndex =
+        selected;
+
+
+    const angle =
+        360 / n;
+
+
+    const target =
+        360 -
+        (
+            selected * angle +
+            angle / 2
+        );
+
+
+    wheelRotation +=
+        360 * 5 +
+        target;
+
+
+    const wheel =
+        document.getElementById("wheel");
+
 
     wheel.style.transform =
         `rotate(${wheelRotation}deg)`;
+
+
+    /*
+       بعد توقف العجلة
+    */
 
     setTimeout(()=>{
 
         showChallenge(selected);
 
+
         spinning = false;
-        document.getElementById("spinBtn").disabled = false;
+
+
+        document
+            .getElementById("spinBtn")
+            .disabled = false;
 
     },4300);
+
 }
+
+
+/* =========================
+   عرض التحدي
+========================= */
 
 function showChallenge(index){
 
-    const player = players[index];
+    const player =
+        players[index];
+
 
     /*
-    يظهر اسم اللاعب فوق التحدي
+       الآن يظهر:
+       🔥 تحدي عادل
     */
-    const turnName = document.getElementById("turnName");
+
+    const turnName =
+        document.getElementById("turnName");
+
 
     turnName.textContent =
-        "🎯 الدور على: " + player;
+        "🔥 تحدي " + player;
 
-    turnName.style.display = "block";
+
+    turnName.style.display =
+        "block";
+
+
+    /*
+       اختيار نوع التحدي
+    */
 
     const category =
         selectedCategories[
-            Math.floor(Math.random()*selectedCategories.length)
+            Math.floor(
+                Math.random() *
+                selectedCategories.length
+            )
         ];
 
-    const challenges = data[category];
+
+    /*
+       اختيار التحدي
+    */
+
+    const challenges =
+        data[category];
+
 
     const challenge =
         challenges[
-            Math.floor(Math.random()*challenges.length)
+            Math.floor(
+                Math.random() *
+                challenges.length
+            )
         ];
 
-    document.getElementById("challengeText").textContent =
+
+    document
+        .getElementById("challengeText")
+        .textContent =
         challenge;
 
-    document.getElementById("challengeBox").style.display =
+
+    document
+        .getElementById("challengeBox")
+        .style.display =
         "block";
 }
 
+
+/* =========================
+   تم
+========================= */
+
 function finishChallenge(){
 
-    if(currentPlayerIndex < 0) return;
+    if(currentPlayerIndex < 0)
+        return;
 
-    const player = players[currentPlayerIndex];
+
+    const player =
+        players[currentPlayerIndex];
+
 
     scores[player]++;
 
+
     nextRound();
 }
+
+
+/* =========================
+   سكيب
+========================= */
 
 function skipChallenge(){
 
     nextRound();
 }
 
+
+/* =========================
+   الجولة التالية
+========================= */
+
 function nextRound(){
 
-    document.getElementById("challengeBox").style.display =
+    document
+        .getElementById("challengeBox")
+        .style.display =
         "none";
 
-    document.getElementById("turnName").style.display =
+
+    document
+        .getElementById("turnName")
+        .style.display =
         "none";
 
-    /*
-    نرجع للعجلة عشان نختار لاعب جديد
-    */
+
     currentPlayerIndex = -1;
 }
 
+
+/* =========================
+   النتائج
+========================= */
+
 function endGame(){
 
-    const sorted = [...players].sort(
-        (a,b)=>scores[b]-scores[a]
-    );
+    const sorted =
+        [...players].sort(
+            (a,b)=>
+            scores[b] - scores[a]
+        );
 
-    const winner = sorted[0];
 
-    document.getElementById("winner").textContent =
+    const winner =
+        sorted[0];
+
+
+    document
+        .getElementById("winner")
+        .textContent =
         "🏆 الفائز: " + winner;
 
-    const results = document.getElementById("results");
+
+    const results =
+        document.getElementById("results");
+
 
     results.innerHTML = "";
 
+
     sorted.forEach((player,index)=>{
 
-        const div = document.createElement("div");
-        div.className = "result";
+        const div =
+            document.createElement("div");
+
+
+        div.className =
+            "result";
+
 
         div.innerHTML =
-            `<span>${index+1}. ${player}</span>
-             <span>${scores[player]} نقطة</span>`;
+            `<span>
+                ${index + 1}. ${player}
+             </span>
+             <span>
+                ${scores[player]} نقطة
+             </span>`;
+
 
         results.appendChild(div);
+
     });
+
 
     go("s5");
 }
