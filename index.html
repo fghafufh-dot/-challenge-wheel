@@ -11,10 +11,12 @@ let timerInterval=null;
 let timeLeft=6;
 let scores={};
 
-/* الأسئلة التي ظهرت سابقًا */
 let usedQuestions={};
 
-/* تجهيز قائمة عدم التكرار لكل تصنيف */
+/* =========================
+   عدم تكرار الأسئلة
+========================= */
+
 function resetUsedQuestions(){
 
     usedQuestions={};
@@ -23,6 +25,10 @@ function resetUsedQuestions(){
         usedQuestions[category]=new Set();
     });
 }
+
+/* =========================
+   صفحة اللاعبين
+========================= */
 
 function showPlayers(){
 
@@ -35,26 +41,35 @@ function showPlayers(){
     }
 }
 
+/* إضافة لاعب */
+
 function addPlayer(){
 
     const box=document.getElementById("playersInputs");
 
     if(box.children.length>=12){
+
         alert("الحد الأقصى 12 لاعب");
+
         return;
     }
 
     const input=document.createElement("input");
 
-    input.placeholder=`اسم اللاعب ${box.children.length+1}`;
+    input.placeholder=
+        `اسم اللاعب ${box.children.length+1}`;
 
     box.appendChild(input);
 }
 
+/* الانتقال لاختيار التحديات */
+
 function goCategories(){
 
     const names=[
-        ...document.querySelectorAll("#playersInputs input")
+        ...document.querySelectorAll(
+            "#playersInputs input"
+        )
     ]
     .map(i=>i.value.trim())
     .filter(Boolean);
@@ -76,10 +91,18 @@ function goCategories(){
 
     currentPlayer=0;
 
-    document.getElementById("playersPage").classList.add("hidden");
+    document.getElementById(
+        "playersPage"
+    ).classList.add("hidden");
 
-    document.getElementById("categoriesPage").classList.remove("hidden");
+    document.getElementById(
+        "categoriesPage"
+    ).classList.remove("hidden");
 }
+
+/* =========================
+   اختيار أنواع التحديات
+========================= */
 
 function toggleCategory(element,name){
 
@@ -88,13 +111,17 @@ function toggleCategory(element,name){
     if(selectedCategories.includes(name)){
 
         selectedCategories=
-            selectedCategories.filter(x=>x!==name);
+            selectedCategories.filter(
+                x=>x!==name
+            );
 
     }else{
 
         selectedCategories.push(name);
     }
 }
+
+/* بدء اللعبة */
 
 function startGame(){
 
@@ -107,18 +134,27 @@ function startGame(){
 
     resetUsedQuestions();
 
-    document.getElementById("categoriesPage").classList.add("hidden");
+    document.getElementById(
+        "categoriesPage"
+    ).classList.add("hidden");
 
-    document.getElementById("wheelArea").style.display="block";
+    document.getElementById(
+        "wheelArea"
+    ).style.display="block";
 
     buildWheel();
 }
 
+/* =========================
+   بناء عجلة اللاعبين
+========================= */
+
 function buildWheel(){
 
-    const wheel=document.getElementById("wheel");
+    const wheel=
+        document.getElementById("wheel");
 
-    const n=selectedCategories.length;
+    const n=players.length;
 
     const colors=[
         "#7c3cff",
@@ -126,14 +162,20 @@ function buildWheel(){
         "#00a8ff",
         "#00c853",
         "#ff9800",
-        "#e91e63"
+        "#e91e63",
+        "#673ab7",
+        "#009688",
+        "#795548",
+        "#3f51b5",
+        "#f44336",
+        "#8bc34a"
     ];
 
     wheel.innerHTML="";
 
     wheel.style.background=
         `conic-gradient(${
-            selectedCategories
+            players
             .map((_,i)=>
                 `${colors[i%colors.length]}
                 ${i*100/n}%
@@ -142,21 +184,31 @@ function buildWheel(){
             .join(",")
         })`;
 
-    selectedCategories.forEach((name,i)=>{
+    players.forEach((name,i)=>{
 
-        const label=document.createElement("div");
+        const label=
+            document.createElement("div");
 
         label.className="segment-name";
 
-        const angle=(i+.5)*360/n-90;
+        const angle=
+            (i+.5)*360/n-90;
 
         const radius=38;
 
         label.style.left=
-            `${50+radius*Math.cos(angle*Math.PI/180)}%`;
+            `${50+
+            radius*
+            Math.cos(
+                angle*Math.PI/180
+            )}%`;
 
         label.style.top=
-            `${50+radius*Math.sin(angle*Math.PI/180)}%`;
+            `${50+
+            radius*
+            Math.sin(
+                angle*Math.PI/180
+            )}%`;
 
         label.textContent=name;
 
@@ -164,57 +216,102 @@ function buildWheel(){
     });
 }
 
+/* =========================
+   لف العجلة
+========================= */
+
 function spinWheel(){
 
-    if(!players.length || !selectedCategories.length){
+    if(
+        !players.length ||
+        !selectedCategories.length
+    ){
+
         return;
     }
 
     clearInterval(timerInterval);
 
-    document.getElementById("spinBtn").disabled=true;
+    document.getElementById(
+        "spinBtn"
+    ).disabled=true;
 
-    document.getElementById("challengeBox").style.display="none";
+    document.getElementById(
+        "challengeBox"
+    ).style.display="none";
 
-    document.getElementById("timeMessage").style.display="none";
+    document.getElementById(
+        "timeMessage"
+    ).style.display="none";
 
     /*
-      اختيار نوع التحدي
+      اختيار لاعب عشوائي
     */
-    const index=
-        Math.floor(Math.random()*selectedCategories.length);
 
-    const n=selectedCategories.length;
+    const playerIndex=
+        Math.floor(
+            Math.random()*players.length
+        );
+
+    /*
+      اللاعب الذي وقف عليه السهم
+    */
+
+    currentPlayer=playerIndex;
+
+    const n=players.length;
 
     const target=
-        360-(index+.5)*360/n;
+        360-
+        (playerIndex+.5)*360/n;
 
     rotation+=
         1440+
         target-
         (rotation%360);
 
-    document.getElementById("wheel").style.transform=
+    document.getElementById(
+        "wheel"
+    ).style.transform=
         `rotate(${rotation}deg)`;
+
+    /*
+      بعد توقف العجلة
+      نختار نوع تحدي عشوائي
+    */
 
     setTimeout(()=>{
 
+        const categoryIndex=
+            Math.floor(
+                Math.random()*
+                selectedCategories.length
+            );
+
         showChallenge(
-            selectedCategories[index]
+            selectedCategories[
+                categoryIndex
+            ]
         );
 
     },5200);
 }
 
+/* =========================
+   عرض التحدي
+========================= */
+
 function showChallenge(category){
 
     currentCategory=category;
 
-    const list=data[category] || [];
+    const list=
+        data[category] || [];
 
     /*
-      إذا انتهت كل أسئلة التصنيف
+      إذا خلصت أسئلة التصنيف
     */
+
     if(
         !usedQuestions[category] ||
         usedQuestions[category].size>=list.length
@@ -224,74 +321,103 @@ function showChallenge(category){
             `خلصت كل أسئلة ${category} 🎉`
         );
 
-        document.getElementById("spinBtn").disabled=false;
+        document.getElementById(
+            "spinBtn"
+        ).disabled=false;
 
         return;
     }
 
     /*
-      الأسئلة التي لم تظهر من قبل
+      الأسئلة المتبقية
     */
+
     const availableQuestions=
         list.filter(
             question=>
-                !usedQuestions[category].has(question)
+                !usedQuestions[
+                    category
+                ].has(question)
         );
 
     /*
       اختيار سؤال جديد
     */
+
     const randomIndex=
         Math.floor(
-            Math.random()*availableQuestions.length
+            Math.random()*
+            availableQuestions.length
         );
 
     currentChallenge=
-        availableQuestions[randomIndex];
+        availableQuestions[
+            randomIndex
+        ];
 
     /*
-      تسجيل السؤال حتى لا يظهر مرة ثانية
+      تسجيل السؤال
+      حتى لا يظهر مرة ثانية
     */
-    usedQuestions[category].add(currentChallenge);
+
+    usedQuestions[
+        category
+    ].add(currentChallenge);
 
     /*
-      هنا التعديل:
-      لا يظهر اسم عادل أو حمد
-      يظهر فقط "التحدي"
+      إظهار اسم اللاعب
+      الذي وقف عليه السهم
     */
-    document.getElementById("turnName").textContent=
-        "🔥 التحدي";
 
-    document.getElementById("turnName").style.display=
-        "block";
+    document.getElementById(
+        "turnName"
+    ).textContent=
+        `🔥 ${players[currentPlayer]}`;
 
-    document.getElementById("challengeText").textContent=
+    document.getElementById(
+        "turnName"
+    ).style.display="block";
+
+    document.getElementById(
+        "challengeText"
+    ).textContent=
         currentChallenge;
 
-    document.getElementById("challengeBox").style.display=
-        "block";
+    document.getElementById(
+        "challengeBox"
+    ).style.display="block";
 
-    document.getElementById("finishBtn").disabled=false;
+    document.getElementById(
+        "finishBtn"
+    ).disabled=false;
 
-    document.getElementById("skipBtn").disabled=false;
+    document.getElementById(
+        "skipBtn"
+    ).disabled=false;
 
-    document.getElementById("timeMessage").style.display=
-        "none";
+    document.getElementById(
+        "timeMessage"
+    ).style.display="none";
 
     /*
       مؤقت السرعة فقط
     */
+
     if(category==="سرعة ⚡️"){
 
         startTimer();
 
     }else{
 
-        document.getElementById("timer").style.display=
-            "none";
-
+        document.getElementById(
+            "timer"
+        ).style.display="none";
     }
 }
+
+/* =========================
+   مؤقت ٦ ثواني
+========================= */
 
 function startTimer(){
 
@@ -316,7 +442,9 @@ function startTimer(){
 
             if(timeLeft<=0){
 
-                clearInterval(timerInterval);
+                clearInterval(
+                    timerInterval
+                );
 
                 timerInterval=null;
 
@@ -326,6 +454,11 @@ function startTimer(){
                     "timeMessage"
                 ).style.display="block";
 
+                /*
+                  انتهى الوقت
+                  بدون نقطة
+                */
+
                 document.getElementById(
                     "finishBtn"
                 ).disabled=true;
@@ -334,9 +467,6 @@ function startTimer(){
                     "skipBtn"
                 ).disabled=true;
 
-                /*
-                  انتهاء الوقت = بدون نقطة
-                */
                 setTimeout(()=>{
 
                     nextTurn();
@@ -347,11 +477,18 @@ function startTimer(){
         },1000);
 }
 
+/* =========================
+   تم = نقطة للاعب
+========================= */
+
 function finishChallenge(){
 
     if(
-        document.getElementById("finishBtn").disabled
+        document.getElementById(
+            "finishBtn"
+        ).disabled
     ){
+
         return;
     }
 
@@ -360,14 +497,21 @@ function finishChallenge(){
     timerInterval=null;
 
     /*
-      اللاعب الحالي يأخذ نقطة
+      النقطة تروح للاعب
+      الذي وقف عليه السهم
     */
-    scores[
-        players[currentPlayer]
-    ]++;
+
+    const player=
+        players[currentPlayer];
+
+    scores[player]++;
 
     nextTurn();
 }
+
+/* =========================
+   سكيب = بدون نقطة
+========================= */
 
 function skipChallenge(){
 
@@ -375,11 +519,12 @@ function skipChallenge(){
 
     timerInterval=null;
 
-    /*
-      السكيب بدون نقطة
-    */
     nextTurn();
 }
+
+/* =========================
+   اللاعب التالي
+========================= */
 
 function nextTurn(){
 
@@ -408,15 +553,19 @@ function nextTurn(){
     ).disabled=false;
 
     /*
-      اللاعب التالي
+      هنا ما نغير اللاعب يدويًا
+      لأن اللاعب القادم يتحدد
+      من السهم في اللفة القادمة
     */
-    currentPlayer=
-        (currentPlayer+1)%players.length;
 
     document.getElementById(
         "spinBtn"
     ).disabled=false;
 }
+
+/* =========================
+   النتائج
+========================= */
 
 function endGame(){
 
@@ -431,7 +580,9 @@ function endGame(){
     ).style.display="block";
 
     const ranking=
-        document.getElementById("ranking");
+        document.getElementById(
+            "ranking"
+        );
 
     ranking.innerHTML="";
 
@@ -446,9 +597,14 @@ function endGame(){
 
             let medal="";
 
-            if(i===0) medal="🥇";
-            else if(i===1) medal="🥈";
-            else if(i===2) medal="🥉";
+            if(i===0)
+                medal="🥇";
+
+            else if(i===1)
+                medal="🥈";
+
+            else if(i===2)
+                medal="🥉";
 
             div.textContent=
                 `${medal} ${i+1}. ${name} — ${score} نقطة`;
