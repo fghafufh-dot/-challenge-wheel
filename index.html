@@ -4,71 +4,127 @@ function spinWheel(){
     spinning = true;
     clearInterval(timerInterval);
 
-    // اختيار لاعب عشوائي
-    selectedPlayerIndex = Math.floor(Math.random() * players.length);
-
     const count = players.length;
+
+    if(count === 0){
+        spinning = false;
+        return;
+    }
+
     const slice = 360 / count;
 
-    // زاوية منتصف خانة اللاعب المختار
-    const playerAngle = selectedPlayerIndex * slice + (slice / 2);
+    /*
+      السهم ثابت في أعلى العجلة.
+      نختار مكان عشوائي على العجلة فقط للدوران،
+      وبعد توقفها نحسب الاسم الموجود فعلياً تحت السهم.
+    */
 
-    // نخلي خانة اللاعب المختار بالضبط تحت السهم الثابت
+    const randomIndex = Math.floor(Math.random() * count);
+
+    // منتصف خانة اللاعب العشوائي
+    const playerAngle =
+        randomIndex * slice + (slice / 2);
+
+    // عدد اللفات
     const extraSpins = 360 * 6;
+
+    // تدوير العجلة بحيث الخانة المختارة تقترب من السهم
     const targetRotation =
         extraSpins + (360 - playerAngle);
 
     wheelRotation += targetRotation;
 
-    // تدوير العجلة فقط، والسهم يبقى ثابت
-    canvas.style.transition = "transform 4s cubic-bezier(.12,.8,.2,1)";
+    canvas.style.transition =
+        "transform 4s cubic-bezier(.12,.8,.2,1)";
+
     canvas.style.transform =
         `rotate(${wheelRotation}deg)`;
 
     setTimeout(() => {
+
         spinning = false;
 
-        // اللاعب الموجود فعلياً تحت السهم
-        const realIndex =
+        /*
+          هنا ما نستخدم randomIndex نهائياً.
+          نحدد اللاعب من مكان رأس السهم الحقيقي.
+        */
+
+        selectedPlayerIndex =
             getPlayerUnderPointer();
 
-        selectedPlayerIndex = realIndex;
-
         showSelectedPlayer();
+
     }, 4100);
 }
 
 
-// معرفة اللاعب الموجود تحت السهم بعد توقف العجلة
+// =====================================
+// تحديد اللاعب الموجود تحت رأس السهم
+// =====================================
+
 function getPlayerUnderPointer(){
 
     const count = players.length;
+
+    if(count === 0){
+        return 0;
+    }
+
     const slice = 360 / count;
 
     // الزاوية الحالية للعجلة
     let rotation = wheelRotation % 360;
 
-    if(rotation < 0) rotation += 360;
+    if(rotation < 0){
+        rotation += 360;
+    }
 
-    // السهم عند أعلى العجلة
-    let pointerAngle = (360 - rotation) % 360;
+    /*
+      رأس السهم موجود في أعلى العجلة = 0 درجة.
 
-    let index = Math.floor(pointerAngle / slice);
+      بما أن العجلة هي التي تدور،
+      نعكس دورانها لمعرفة أي قطاع موجود عند السهم.
+    */
 
-    if(index < 0) index = 0;
-    if(index >= count) index = count - 1;
+    let pointerAngle =
+        (360 - rotation) % 360;
+
+    /*
+      نضيف نصف القطاع لأننا نريد
+      الاسم الموجود في منتصف القطاع،
+      وليس بداية القطاع.
+    */
+
+    pointerAngle =
+        (pointerAngle + slice / 2) % 360;
+
+    let index =
+        Math.floor(pointerAngle / slice);
+
+    if(index < 0){
+        index = 0;
+    }
+
+    if(index >= count){
+        index = count - 1;
+    }
 
     return index;
 }
 
 
+// =====================================
+// اللاعب الذي جاء عليه رأس السهم
+// =====================================
+
 function showSelectedPlayer(){
 
-    const name = players[selectedPlayerIndex];
+    const name =
+        players[selectedPlayerIndex];
 
-    // نفس اللاعب الموجود تحت السهم
     document.getElementById("selectedPlayer").innerHTML =
         `🎯 تحدي ${name}`;
 
+    // السؤال يكون لهذا اللاعب
     showQuestion();
 }
