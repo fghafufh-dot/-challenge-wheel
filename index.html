@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>🎡 عجلة التحديات</title>
 
 <style>
+
 *{
     box-sizing:border-box;
     font-family:Arial,Tahoma,sans-serif;
@@ -15,14 +17,14 @@ body{
     margin:0;
     min-height:100vh;
     background:linear-gradient(135deg,#0f172a,#1e293b,#111827);
-    color:#fff;
+    color:white;
 }
 
 header{
     text-align:center;
+    padding:20px 10px;
     font-size:30px;
     font-weight:bold;
-    padding:20px 10px;
 }
 
 .container{
@@ -61,7 +63,6 @@ button{
     font-size:17px;
     font-weight:bold;
     cursor:pointer;
-    transition:.2s;
 }
 
 button:active{
@@ -113,7 +114,7 @@ button:active{
     right:10px;
     background:#ef4444;
     color:white;
-    z-index:10;
+    z-index:20;
 }
 
 .current{
@@ -124,29 +125,103 @@ button:active{
 }
 
 .wheelWrap{
-    width:min(500px,90vw);
+    width:min(520px,92vw);
     aspect-ratio:1;
-    margin:30px auto 15px;
+    margin:35px auto 15px;
     position:relative;
 }
 
-canvas{
+/* العجلة */
+
+#wheel{
     width:100%;
     height:100%;
     display:block;
 }
 
-.pointer{
+/* السهم الموجود بالنص */
+
+.centerPointer{
     position:absolute;
-    top:-5px;
     left:50%;
-    transform:translateX(-50%);
-    z-index:5;
+    top:50%;
     width:0;
     height:0;
-    border-left:20px solid transparent;
-    border-right:20px solid transparent;
-    border-top:40px solid #ef4444;
+    z-index:20;
+
+    transform:
+        translate(-50%,-50%)
+        rotate(0deg);
+
+    transform-origin:
+        50% 50%;
+}
+
+/* رأس السهم */
+
+.centerPointer::before{
+    content:"";
+    position:absolute;
+
+    left:-15px;
+    top:-130px;
+
+    width:0;
+    height:0;
+
+    border-left:15px solid transparent;
+    border-right:15px solid transparent;
+    border-top:45px solid #ef4444;
+
+    filter:drop-shadow(0 3px 3px #000);
+}
+
+/* جسم السهم */
+
+.centerPointer::after{
+    content:"";
+
+    position:absolute;
+
+    left:-5px;
+    top:-95px;
+
+    width:10px;
+    height:90px;
+
+    background:#ef4444;
+
+    border-radius:10px;
+
+    box-shadow:0 0 8px rgba(0,0,0,.5);
+}
+
+/* دائرة منتصف السهم */
+
+.pointerCenter{
+    position:absolute;
+
+    width:65px;
+    height:65px;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    background:#0f172a;
+
+    border:5px solid white;
+
+    border-radius:50%;
+
+    z-index:25;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:25px;
 }
 
 .spin{
@@ -205,9 +280,11 @@ canvas{
     margin:20px auto;
     border-radius:50%;
     background:#ef4444;
+
     display:flex;
     align-items:center;
     justify-content:center;
+
     font-size:25px;
     font-weight:bold;
 }
@@ -232,9 +309,13 @@ canvas{
 .leader{
     display:flex;
     justify-content:space-between;
+
     background:#1e293b;
+
     padding:12px;
+
     border-radius:12px;
+
     margin:7px 0;
 }
 
@@ -262,20 +343,29 @@ canvas{
         position:relative;
         top:auto;
         right:auto;
+
         width:100%;
+
         margin-bottom:10px;
     }
+
 }
+
 </style>
 </head>
 
 <body>
 
-<header>🎡 عجلة التحديات</header>
+<header>
+🎡 عجلة التحديات
+</header>
 
 <div class="container">
 
-<!-- الإعداد -->
+<!-- =========================
+     شاشة الإعداد
+========================= -->
+
 <div id="setup" class="card">
 
 <h2>👥 أسماء اللاعبين</h2>
@@ -336,7 +426,10 @@ onclick="chooseType(this,'CHALLENGE')">
 </div>
 
 
-<!-- اللعبة -->
+<!-- =========================
+     اللعبة
+========================= -->
+
 <div id="game" class="hidden">
 
 <button class="back" onclick="backToSetup()">
@@ -348,7 +441,8 @@ onclick="chooseType(this,'CHALLENGE')">
 
 <h2>🎯 اللاعب المختار</h2>
 
-<div id="currentPlayer" class="current">
+<div id="currentPlayer"
+class="current">
 -
 </div>
 
@@ -363,32 +457,48 @@ class="playerList">
 
 <div class="wheelWrap">
 
-<div class="pointer"></div>
-
 <canvas id="wheel"
 width="600"
 height="600">
 </canvas>
 
+<!-- السهم الذي يدور -->
+
+<div id="centerPointer"
+class="centerPointer">
+
 </div>
+
+<div class="pointerCenter">
+🎯
+</div>
+
+</div>
+
 
 <button id="spinButton"
 class="spin"
 onclick="spinWheel()">
 
-🎡 لف العجلة
+🎡 لف السهم
 
 </button>
 
+
 <div id="selectedPlayer"
 class="selectedPlayer">
-لف العجلة لاختيار اللاعب
-</div>
+
+لف السهم لاختيار اللاعب
 
 </div>
 
+</div>
 
-<!-- السؤال -->
+
+<!-- =========================
+     السؤال
+========================= -->
+
 <div id="questionBox"
 class="card hidden">
 
@@ -422,17 +532,20 @@ onclick="failed()">
 </div>
 
 
-<!-- النقاط -->
+<!-- =========================
+     النقاط
+========================= -->
+
 <div class="card">
 
 <h2>🏆 النقاط</h2>
 
-<div id="leaderboard">
-</div>
+<div id="leaderboard"></div>
 
 </div>
 
 </div>
+
 
 <div class="footer">
 المصمم عادل الشمري
@@ -444,7 +557,7 @@ onclick="failed()">
 <script>
 
 /* =========================
-   الأنواع
+   أنواع التحديات
 ========================= */
 
 const categories={
@@ -484,7 +597,6 @@ color:"#22c55e"
 
 /* =========================
    الأسئلة
-   100 لكل نوع
 ========================= */
 
 const challenges={
@@ -1118,34 +1230,42 @@ CHALLENGE:[
 ========================= */
 
 let players=[];
+
 let selectedType="ALL";
+
 let selectedPlayerIndex=-1;
-let currentQuestionType=null;
 
 let rotation=0;
+
 let spinning=false;
+
 let timerInterval=null;
 
 let usedQuestions={};
 
 
 /* =========================
-   اللاعبين
+   إضافة اللاعبين
 ========================= */
 
 function addPlayer(){
 
-    const box=document.getElementById("playerInputs");
+    const box=
+        document.getElementById("playerInputs");
 
     if(box.children.length>=12){
+
         alert("الحد الأقصى 12 لاعب");
+
         return;
     }
 
-    const input=document.createElement("input");
+    const input=
+        document.createElement("input");
 
     input.placeholder=
-        "اسم اللاعب "+(box.children.length+1);
+        "اسم اللاعب "+
+        (box.children.length+1);
 
     box.appendChild(input);
 }
@@ -1164,7 +1284,9 @@ function chooseType(el,type){
 
     document
     .querySelectorAll(".type")
-    .forEach(x=>x.classList.remove("selected"));
+    .forEach(x=>
+        x.classList.remove("selected")
+    );
 
     el.classList.add("selected");
 }
@@ -1177,13 +1299,16 @@ function chooseType(el,type){
 function startGame(){
 
     const inputs=
-        document.querySelectorAll("#playerInputs input");
+        document.querySelectorAll(
+            "#playerInputs input"
+        );
 
     players=[];
 
     inputs.forEach(input=>{
 
-        const name=input.value.trim();
+        const name=
+            input.value.trim();
 
         if(name){
 
@@ -1199,7 +1324,9 @@ function startGame(){
 
     if(players.length<1){
 
-        alert("اكتب اسم لاعب واحد على الأقل");
+        alert(
+            "اكتب اسم لاعب واحد على الأقل"
+        );
 
         return;
     }
@@ -1207,10 +1334,16 @@ function startGame(){
 
     selectedPlayerIndex=-1;
 
+    rotation=0;
+
     usedQuestions={};
 
-    Object.keys(challenges).forEach(type=>{
+
+    Object.keys(challenges)
+    .forEach(type=>{
+
         usedQuestions[type]=[];
+
     });
 
 
@@ -1218,28 +1351,48 @@ function startGame(){
     .getElementById("setup")
     .classList.add("hidden");
 
+
     document
     .getElementById("game")
     .classList.remove("hidden");
 
 
+    document
+    .getElementById("currentPlayer")
+    .textContent="-";
+
+
+    document
+    .getElementById("selectedPlayer")
+    .textContent=
+        "لف السهم لاختيار اللاعب";
+
+
     updatePlayers();
 
     drawWheel();
+
 }
 
 
 /* =========================
-   العجلة = أسماء اللاعبين
+   رسم العجلة
 ========================= */
 
 function drawWheel(){
 
-    const canvas=document.getElementById("wheel");
-    const ctx=canvas.getContext("2d");
+    const canvas=
+        document.getElementById("wheel");
 
-    const center=canvas.width/2;
-    const radius=center-10;
+    const ctx=
+        canvas.getContext("2d");
+
+    const center=
+        canvas.width/2;
+
+    const radius=
+        center-10;
+
 
     ctx.clearRect(
         0,
@@ -1254,13 +1407,30 @@ function drawWheel(){
     if(!count)return;
 
 
-    const slice=(Math.PI*2)/count;
+    const slice=
+        Math.PI*2/count;
+
+
+    const colors=[
+        "#ef4444",
+        "#f97316",
+        "#eab308",
+        "#22c55e",
+        "#06b6d4",
+        "#3b82f6",
+        "#8b5cf6",
+        "#ec4899",
+        "#14b8a6",
+        "#84cc16",
+        "#f43f5e",
+        "#6366f1"
+    ];
 
 
     players.forEach((player,index)=>{
 
         const start=
-            rotation+(index*slice);
+            index*slice;
 
         const end=
             start+slice;
@@ -1268,7 +1438,10 @@ function drawWheel(){
 
         ctx.beginPath();
 
-        ctx.moveTo(center,center);
+        ctx.moveTo(
+            center,
+            center
+        );
 
         ctx.arc(
             center,
@@ -1281,22 +1454,6 @@ function drawWheel(){
         ctx.closePath();
 
 
-        const colors=[
-            "#ef4444",
-            "#f97316",
-            "#eab308",
-            "#22c55e",
-            "#06b6d4",
-            "#3b82f6",
-            "#8b5cf6",
-            "#ec4899",
-            "#14b8a6",
-            "#84cc16",
-            "#f43f5e",
-            "#6366f1"
-        ];
-
-
         ctx.fillStyle=
             colors[index%colors.length];
 
@@ -1304,46 +1461,59 @@ function drawWheel(){
 
 
         ctx.strokeStyle="#fff";
+
         ctx.lineWidth=3;
+
         ctx.stroke();
 
 
         ctx.save();
 
-        ctx.translate(center,center);
+        ctx.translate(
+            center,
+            center
+        );
 
         ctx.rotate(
             start+slice/2
         );
 
+
         ctx.textAlign="right";
 
+        ctx.textBaseline="middle";
+
         ctx.fillStyle="#fff";
+
 
         let fontSize=22;
 
         if(player.name.length>12)
-            fontSize=16;
+            fontSize=17;
 
         if(player.name.length>18)
-            fontSize=13;
+            fontSize=14;
+
 
         ctx.font=
-            "bold "+fontSize+"px Arial";
+            "bold "+
+            fontSize+
+            "px Arial";
 
 
         ctx.fillText(
             player.name,
-            radius-20,
-            7
+            radius-25,
+            0
         );
+
 
         ctx.restore();
 
     });
 
 
-    /* الدائرة الوسطى */
+    /* دائرة الوسط */
 
     ctx.beginPath();
 
@@ -1356,29 +1526,21 @@ function drawWheel(){
     );
 
     ctx.fillStyle="#0f172a";
+
     ctx.fill();
 
+
     ctx.strokeStyle="#fff";
+
     ctx.lineWidth=4;
+
     ctx.stroke();
-
-
-    ctx.fillStyle="#fff";
-    ctx.textAlign="center";
-    ctx.textBaseline="middle";
-    ctx.font="bold 24px Arial";
-
-    ctx.fillText(
-        "🎡",
-        center,
-        center
-    );
 
 }
 
 
 /* =========================
-   لف العجلة واختيار لاعب
+   دوران السهم
 ========================= */
 
 function spinWheel(){
@@ -1389,6 +1551,7 @@ function spinWheel(){
 
 
     spinning=true;
+
 
     clearInterval(timerInterval);
 
@@ -1404,9 +1567,7 @@ function spinWheel(){
 
 
     /*
-       نختار لاعب عشوائي
-       ثم نجعل دوران العجلة
-       ينتهي عند هذا اللاعب
+       اختيار لاعب عشوائي
     */
 
     const winner=
@@ -1420,50 +1581,44 @@ function spinWheel(){
 
 
     /*
-       زاوية اللاعب المستهدف
-       عند السهم الموجود بالأعلى
+       مركز خانة اللاعب
+    */
+
+    const playerAngle=
+        winner*slice+
+        slice/2;
+
+
+    /*
+       السهم يشير للأعلى.
+       نحسب الزاوية التي يجب
+       أن يتوقف عندها.
     */
 
     const targetAngle=
-        -(winner*slice+slice/2)
-        +Math.PI/2;
-
-
-    let current=
-        rotation%(Math.PI*2);
-
-    if(current<0)
-        current+=Math.PI*2;
-
-
-    let target=
-        targetAngle%(Math.PI*2);
-
-    if(target<0)
-        target+=Math.PI*2;
-
-
-    let difference=
-        target-current;
-
-    if(difference<0)
-        difference+=Math.PI*2;
+        -playerAngle;
 
 
     const extra=
         Math.PI*2*
-        (6+Math.floor(Math.random()*3));
+        (6+Math.floor(
+            Math.random()*3
+        ));
 
 
-    const startRotation=rotation;
+    const startAngle=
+        rotation;
 
-    const finalRotation=
+
+    const finalAngle=
         rotation+
         extra+
-        difference;
+        targetAngle-
+        (rotation%(Math.PI*2));
 
 
     const duration=4000;
+
 
     const startTime=
         performance.now();
@@ -1479,27 +1634,52 @@ function spinWheel(){
 
 
         const ease=
-            1-Math.pow(1-progress,4);
+            1-Math.pow(
+                1-progress,
+                4
+            );
 
 
         rotation=
-            startRotation+
-            (finalRotation-startRotation)
-            *ease;
+            startAngle+
+            (finalAngle-startAngle)*
+            ease;
 
 
-        drawWheel();
+        /*
+           هنا السهم هو الذي يدور
+        */
+
+        const pointer=
+            document.getElementById(
+                "centerPointer"
+            );
+
+
+        pointer.style.transform=
+            `
+            translate(-50%,-50%)
+            rotate(${rotation*180/Math.PI}deg)
+            `;
 
 
         if(progress<1){
 
-            requestAnimationFrame(animate);
+            requestAnimationFrame(
+                animate
+            );
 
         }else{
 
-            rotation=finalRotation;
+            rotation=finalAngle;
 
-            drawWheel();
+
+            pointer.style.transform=
+                `
+                translate(-50%,-50%)
+                rotate(${rotation*180/Math.PI}deg)
+                `;
+
 
             spinning=false;
 
@@ -1516,6 +1696,7 @@ function spinWheel(){
 
 
     requestAnimationFrame(animate);
+
 }
 
 
@@ -1531,29 +1712,23 @@ function selectPlayer(index){
     document
     .getElementById("currentPlayer")
     .textContent=
-    players[index].name;
+        players[index].name;
 
 
     document
     .getElementById("selectedPlayer")
     .textContent=
-    "🎯 اللاعب المختار: "+
-    players[index].name;
+        "🎯 اللاعب المختار: "+
+        players[index].name;
 
 
     updatePlayers();
 
 
-    /*
-       بعد اختيار اللاعب
-       يطلع له تحدي من النوع المحدد
-    */
-
-    setTimeout(()=>{
-
-        showQuestion();
-
-    },500);
+    setTimeout(
+        showQuestion,
+        500
+    );
 }
 
 
@@ -1563,8 +1738,11 @@ function selectPlayer(index){
 
 function getRandomType(){
 
-    if(selectedType!=="ALL")
+    if(selectedType!=="ALL"){
+
         return selectedType;
+
+    }
 
 
     const types=
@@ -1576,6 +1754,7 @@ function getRandomType(){
             Math.random()*types.length
         )
     ];
+
 }
 
 
@@ -1585,9 +1764,8 @@ function getRandomType(){
 
 function showQuestion(){
 
-    const type=getRandomType();
-
-    currentQuestionType=type;
+    const type=
+        getRandomType();
 
 
     const question=
@@ -1597,13 +1775,13 @@ function showQuestion(){
     document
     .getElementById("questionCategory")
     .textContent=
-    categories[type].name;
+        categories[type].name;
 
 
     document
     .getElementById("question")
     .textContent=
-    question;
+        question;
 
 
     document
@@ -1622,6 +1800,7 @@ function showQuestion(){
         .classList.add("hidden");
 
     }
+
 }
 
 
@@ -1647,13 +1826,14 @@ function getQuestion(type){
 
     let index;
 
+
     do{
 
         index=
-        Math.floor(
-            Math.random()*
-            challenges[type].length
-        );
+            Math.floor(
+                Math.random()*
+                challenges[type].length
+            );
 
     }while(
         usedQuestions[type].includes(index)
@@ -1664,6 +1844,7 @@ function getQuestion(type){
 
 
     return challenges[type][index];
+
 }
 
 
@@ -1685,46 +1866,56 @@ function startTimer(){
 
     let time=10;
 
+
     timer.textContent=time;
 
 
     timerInterval=
-    setInterval(()=>{
+        setInterval(()=>{
 
-        time--;
+            time--;
 
-        timer.textContent=time;
+            timer.textContent=time;
 
 
-        if(time<=0){
+            if(time<=0){
 
-            clearInterval(timerInterval);
+                clearInterval(
+                    timerInterval
+                );
 
-            timer.textContent="⏰ انتهى الوقت";
+                timer.textContent=
+                    "⏰ انتهى";
 
-        }
+            }
 
-    },1000);
+        },1000);
+
 }
 
 
 /* =========================
-   نجاح
+   نجح
 ========================= */
 
 function success(){
 
-    clearInterval(timerInterval);
+    clearInterval(
+        timerInterval
+    );
 
 
     if(selectedPlayerIndex>=0){
 
-        players[selectedPlayerIndex].score++;
+        players[
+            selectedPlayerIndex
+        ].score++;
 
     }
 
 
     nextRound();
+
 }
 
 
@@ -1734,9 +1925,13 @@ function success(){
 
 function failed(){
 
-    clearInterval(timerInterval);
+    clearInterval(
+        timerInterval
+    );
+
 
     nextRound();
+
 }
 
 
@@ -1759,10 +1954,7 @@ function nextRound(){
     document
     .getElementById("selectedPlayer")
     .textContent=
-    "لف العجلة لاختيار اللاعب";
-
-
-    selectedPlayerIndex=-1;
+        "لف السهم لاختيار اللاعب";
 
 
     document
@@ -1770,7 +1962,11 @@ function nextRound(){
     .textContent="-";
 
 
+    selectedPlayerIndex=-1;
+
+
     updatePlayers();
+
 }
 
 
@@ -1781,94 +1977,120 @@ function nextRound(){
 function updatePlayers(){
 
     const box=
-        document.getElementById("players");
+        document.getElementById(
+            "players"
+        );
+
 
     box.innerHTML="";
 
 
-    players.forEach((player,index)=>{
+    players.forEach(
+        (player,index)=>{
 
-        const div=
-            document.createElement("div");
+            const div=
+                document.createElement(
+                    "div"
+                );
 
-        div.className="player";
+
+            div.className="player";
 
 
-        if(index===selectedPlayerIndex){
+            if(
+                index===
+                selectedPlayerIndex
+            ){
 
-            div.classList.add("active");
+                div.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            div.textContent=
+                player.name+
+                " — "+
+                player.score+
+                " نقطة";
+
+
+            box.appendChild(div);
 
         }
-
-
-        div.textContent=
-            player.name+
-            " — "+
-            player.score+
-            " نقطة";
-
-
-        box.appendChild(div);
-
-    });
+    );
 
 
     updateLeaderboard();
+
 }
 
 
 /* =========================
-   الترتيب
+   لوحة النقاط
 ========================= */
 
 function updateLeaderboard(){
 
     const board=
-        document.getElementById("leaderboard");
+        document.getElementById(
+            "leaderboard"
+        );
 
 
     const sorted=
         [...players].sort(
-            (a,b)=>b.score-a.score
+            (a,b)=>
+                b.score-a.score
         );
 
 
     board.innerHTML="";
 
 
-    sorted.forEach((player,index)=>{
+    sorted.forEach(
+        (player,index)=>{
 
-        const row=
-            document.createElement("div");
-
-        row.className="leader";
-
-
-        row.innerHTML=
-        `
-        <span>
-            ${index+1}. ${escapeHtml(player.name)}
-        </span>
-
-        <strong>
-            ${player.score} نقطة
-        </strong>
-        `;
+            const row=
+                document.createElement(
+                    "div"
+                );
 
 
-        board.appendChild(row);
+            row.className="leader";
 
-    });
+
+            row.innerHTML=
+                `
+                <span>
+                ${index+1}. ${escapeHtml(player.name)}
+                </span>
+
+                <strong>
+                ${player.score} نقطة
+                </strong>
+                `;
+
+
+            board.appendChild(row);
+
+        }
+    );
+
 }
 
 
 /* =========================
-   الرجوع لاختيار النوع
+   الرجوع
 ========================= */
 
 function backToSetup(){
 
-    clearInterval(timerInterval);
+    clearInterval(
+        timerInterval
+    );
+
 
     spinning=false;
 
@@ -1890,22 +2112,30 @@ function backToSetup(){
 
     selectedPlayerIndex=-1;
 
+
     rotation=0;
+
+
+    document
+    .getElementById("centerPointer")
+    .style.transform=
+        "translate(-50%,-50%)";
+
 }
 
 
 /* =========================
-   حماية الأسماء
+   حماية أسماء اللاعبين
 ========================= */
 
 function escapeHtml(text){
 
     return text
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
 }
 
