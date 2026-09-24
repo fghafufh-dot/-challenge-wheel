@@ -74,6 +74,8 @@ function goCategories(){
         scores[player]=0;
     });
 
+    currentPlayer=0;
+
     document.getElementById("playersPage").classList.add("hidden");
 
     document.getElementById("categoriesPage").classList.remove("hidden");
@@ -103,10 +105,6 @@ function startGame(){
         return;
     }
 
-    /*
-      تصفير الأسئلة المستخدمة
-      عشان كل لعبة جديدة تبدأ من الصفر
-    */
     resetUsedQuestions();
 
     document.getElementById("categoriesPage").classList.add("hidden");
@@ -184,9 +182,7 @@ function spinWheel(){
       اختيار نوع التحدي
     */
     const index=
-        Math.floor(
-            Math.random()*selectedCategories.length
-        );
+        Math.floor(Math.random()*selectedCategories.length);
 
     const n=selectedCategories.length;
 
@@ -234,7 +230,7 @@ function showChallenge(category){
     }
 
     /*
-      إنشاء قائمة الأسئلة المتبقية فقط
+      الأسئلة التي لم تظهر من قبل
     */
     const availableQuestions=
         list.filter(
@@ -243,7 +239,7 @@ function showChallenge(category){
         );
 
     /*
-      اختيار سؤال لم يظهر من قبل
+      اختيار سؤال جديد
     */
     const randomIndex=
         Math.floor(
@@ -254,16 +250,17 @@ function showChallenge(category){
         availableQuestions[randomIndex];
 
     /*
-      تسجيل السؤال كمستخدم
-      وبالتالي لن يظهر مرة ثانية
+      تسجيل السؤال حتى لا يظهر مرة ثانية
     */
     usedQuestions[category].add(currentChallenge);
 
-    const player=
-        players[currentPlayer];
-
+    /*
+      هنا التعديل:
+      لا يظهر اسم عادل أو حمد
+      يظهر فقط "التحدي"
+    */
     document.getElementById("turnName").textContent=
-        `🔥 تحدي ${player}`;
+        "🔥 التحدي";
 
     document.getElementById("turnName").style.display=
         "block";
@@ -363,7 +360,7 @@ function finishChallenge(){
     timerInterval=null;
 
     /*
-      اللاعب يأخذ نقطة
+      اللاعب الحالي يأخذ نقطة
     */
     scores[
         players[currentPlayer]
@@ -411,7 +408,7 @@ function nextTurn(){
     ).disabled=false;
 
     /*
-      الانتقال للاعب التالي
+      اللاعب التالي
     */
     currentPlayer=
         (currentPlayer+1)%players.length;
