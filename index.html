@@ -1,1066 +1,463 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>عجلة التحديات</title>
-<style>
-*{
-    box-sizing:border-box;
-    font-family:Arial,Tahoma,sans-serif;
-}
-body{
-    margin:0;
-    min-height:100vh;
-    background:linear-gradient(135deg,#090014,#16002b,#05000b);
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
-}
-.container{
-    width:100%;
-    max-width:650px;
-    text-align:center;
-}
-h1{
-    margin:0 0 10px;
-    font-size:34px;
-}
-.subtitle{
-    color:#ddd;
-    margin-bottom:20px;
-}
-.card{
-    background:rgba(255,255,255,.07);
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:25px;
-    padding:25px;
-    box-shadow:0 15px 50px rgba(0,0,0,.4);
-}
-button{
-    border:0;
-    border-radius:15px;
-    padding:15px 22px;
-    font-size:18px;
-    font-weight:900;
-    cursor:pointer;
-    margin:6px;
-}
-.primary{
-    background:#7c3cff;
-    color:white;
-}
-.gold{
-    background:#ffd21c;
-    color:#111;
-}
-.red{
-    background:#ff3b4d;
-    color:white;
-}
-input{
-    width:100%;
-    padding:15px;
-    margin:7px 0;
-    border-radius:12px;
-    border:1px solid #555;
-    background:#111;
-    color:white;
-    font-size:17px;
-    text-align:center;
-}
-.category-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-}
-.category{
-    padding:18px 10px;
-    border-radius:18px;
-    background:#191126;
-    border:2px solid #38215c;
-    font-size:18px;
-    font-weight:900;
-}
-.category.selected{
-    background:#7137c9;
-    border-color:#ffd21c;
-}
-#wheelArea{
-    display:none;
-}
-.wheel-wrap{
-    position:relative;
-    width:min(88vw,480px);
-    height:min(88vw,480px);
-    margin:20px auto;
-}
-#wheel{
-    position:absolute;
-    width:100%;
-    height:100%;
-    border-radius:50%;
-    overflow:hidden;
-    border:8px solid #fff;
-    box-shadow:0 0 30px rgba(124,60,255,.7);
-    transition:transform 5s cubic-bezier(.12,.75,.15,1);
-}
-.segment-name{
-    position:absolute;
-    width:145px;
-    text-align:center;
-    font-size:17px;
-    font-weight:900;
-    color:white;
-    text-shadow:0 2px 5px #000;
-    white-space:nowrap;
-    transform:translate(-50%,-50%);
-}
-.pointer{
-    position:absolute;
-    z-index:10;
-    top:-12px;
-    left:50%;
-    transform:translateX(-50%);
-    width:0;
-    height:0;
-    border-left:18px solid transparent;
-    border-right:18px solid transparent;
-    border-top:35px solid #ffd21c;
-    filter:drop-shadow(0 3px 5px #000);
-}
-.center-dot{
-    position:absolute;
-    z-index:9;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    width:70px;
-    height:70px;
-    border-radius:50%;
-    background:#111;
-    border:5px solid white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-}
-#turnName{
-    display:none;
-    font-size:30px;
-    font-weight:900;
-    color:#ffd21c;
-    margin:20px 0 10px;
-}
-#challengeBox{
-    display:none;
-    margin-top:15px;
-    padding:20px;
-    background:#120d1d;
-    border:2px solid #7137c9;
-    border-radius:20px;
-}
-.challenge-title{
-    font-size:22px;
-    font-weight:900;
-    margin-bottom:10px;
-}
-#challengeText{
-    font-size:23px;
-    line-height:1.7;
-    font-weight:900;
-}
-#results{
-    display:none;
-}
-.rank{
-    padding:15px;
-    margin:8px 0;
-    border-radius:14px;
-    background:#17101f;
-    font-size:20px;
-    font-weight:900;
-}
-.small{
-    color:#bbb;
-    font-size:14px;
-}
-.hidden{
-    display:none!important;
-}
-</style>
-</head>
-<body>
-<div class="container">
-<div id="startPage" class="card">
-    <h1>🎡 عجلة التحديات</h1>
-    <div class="subtitle">لعبة جماعية سريعة وممتعة 🔥</div>
-    <div class="small">إنشاء وتصميم عادل</div>
-    <br>
-    <button class="gold" onclick="showPlayers()">بدء اللعبة</button>
-</div>
-<div id="playersPage" class="card hidden">
-    <h1>ضع الأسماء</h1>
-    <div id="playersInputs"></div>
-    <button class="primary" onclick="addPlayer()">➕ إضافة لاعب</button>
-    <br>
-    <button class="gold" onclick="goCategories()">التالي</button>
-</div>
-<div id="categoriesPage" class="card hidden">
-    <h1>اختر نوع التحدي الي تبيه</h1>
-    <div class="category-grid">
-        <div class="category" onclick="toggleCategory(this,'مضحكة 😂')">
-            مضحكة 😂
-        </div>
-        <div class="category" onclick="toggleCategory(this,'ذكاء 🧠')">
-            ذكاء 🧠
-        </div>
-        <div class="category" onclick="toggleCategory(this,'تمثيل 🎭')">
-            تمثيل 🎭
-        </div>
-        <div class="category" onclick="toggleCategory(this,'سرعة ⚡️')">
-            سرعة ⚡️
-        </div>
-        <div class="category" onclick="toggleCategory(this,'جريئة 😈')">
-            جريئة 😈
-        </div>
-        <div class="category" onclick="toggleCategory(this,'تحديات 👥')">
-            تحديات 👥
-        </div>
-    </div>
-    <br>
-    <button class="gold" onclick="startGame()">ابدأ اللعب 🎮</button>
-</div>
-<div id="wheelArea" class="card">
-    <h1>🎡 عجلة التحديات</h1>
-    <div class="wheel-wrap">
-        <div class="pointer"></div>
-        <div id="wheel"></div>
-        <div class="center-dot">🎯</div>
-    </div>
-    <button id="spinBtn" class="gold" onclick="spinWheel()">
-        لف العجلة 🎡
-    </button>
-    <div id="turnName"></div>
-    <div id="challengeBox">
-        <div class="challenge-title">
-            🎯 التحدي
-        </div>
-        <div id="challengeText"></div>
-        <br>
-        <button class="primary" onclick="finishChallenge()">
-            تم ✅
-        </button>
-        <button class="red" onclick="skipChallenge()">
-            سكيب ⏭️
-        </button>
-    </div>
-    <br>
-    <button class="red" onclick="endGame()">
-        إنهاء اللعبة 🏆
-    </button>
-</div>
-<div id="results" class="card">
-    <h1>🏆 النتائج</h1>
-    <div id="ranking"></div>
-    <button class="gold" onclick="location.reload()">
-        لعبة جديدة 🔄
-    </button>
-</div>
-</div>
 <script>
-const data = {
-"مضحكة 😂":[
-"قل جملة بصوت روبوت لمدة 10 ثواني 🤖",
-"مثّل أنك مذيع أخبار وتقول خبرًا مضحكًا 📺",
-"قل نكتة بدون ما تضحك 😂",
-"اعمل صوت حيوان وعلى الباقين تخمينه 🐯",
-"تكلم كأنك طفل لمدة 15 ثانية 🧒",
-"قل جملة عادية بطريقة درامية جدًا 🎭",
-"تكلم كأنك مذيع إذاعة قديمة 📻",
-"قل اسمك وكأنك بطل فيلم أكشن 🎬",
-"حاول تضحك بدون صوت لمدة 10 ثواني 😂",
-"تكلم بصوت منخفض جدًا لمدة 15 ثانية 🤫",
-"قل جملة وأنت تضحك",
-"مثّل أنك صحيت متأخر عن المدرسة",
-"مثّل أنك شفت شيء مخيف ثم اكتشفت أنه شيء عادي",
-"قل كلمة صعبة بطريقة مضحكة",
-"تكلم كأنك روبوت خربان",
-"قل جملة وأنت تمثل أنك نعسان",
-"مثّل أنك تطلب بيتزا بطريقة رسمية جدًا 🍕",
-"اعمل صوت سيارة 🚗",
-"اعمل صوت بطة 🦆",
-"قل جملة وكأنك ملك 👑",
-"مثّل أنك فزت بمسابقة ضخمة",
-"تكلم كأنك في إعلان تجاري",
-"قل جملة بطريقة بطيئة جدًا",
-"قل جملة بطريقة سريعة جدًا",
-"مثّل أنك تبحث عن شيء ضاع منك",
-"تكلم كأنك مدرس عصبي",
-"تكلم كأنك موظف خدمة عملاء",
-"قل جملة وكأنك تغنيها",
-"مثّل أنك تشاهد مباراة حماسية ⚽",
-"اعمل صوت قطة 🐱",
-"اعمل صوت أسد 🦁",
-"اعمل صوت دجاجة 🐔",
-"اعمل صوت حصان 🐴",
-"مثّل أنك تحاول فتح باب عالق",
-"مثّل أنك تحاول إيقاف عطسة",
-"قل اسم لاعب بطريقة مضحكة",
-"قل أسماء ثلاثة أشياء وكأنها أسماء أشخاص",
-"تكلم كأنك شخصية كرتونية",
-"مثّل أنك ضايع في مكان غريب",
-"قل جملة وأنت تمشي مثل الروبوت",
-"مثّل أنك قابلت شخصًا مشهورًا",
-"تكلم كأنك في مقابلة تلفزيونية",
-"قل جملة وكأنك غاضب جدًا",
-"قل جملة وكأنك فرحان جدًا",
-"مثّل أنك فزت بمليون ريال 💰",
-"مثّل أنك خسرت آخر حبة بطاطس 🍟",
-"تكلم كأنك بائع في سوق",
-"مثّل أنك تطارد ذبابة",
-"اعمل وجه مضحك لمدة 5 ثواني",
-"قل خمسة أسماء بطريقة مضحكة",
-"تكلم وكأنك تتحدث مع طفل صغير",
-"مثّل أنك تحاول إقناع أحد بشيء غريب",
-"قل جملة وأنت تمثل أنك مريض",
-"مثّل أنك نسيت اسم شخص أمامك",
-"تكلم كأنك مذيع رياضي",
-"مثّل هدفًا رياضيًا بطريقة مبالغ فيها",
-"قل جملة وكأنك في فيلم رعب 👻",
-"تكلم كأنك شرطي في فيلم",
-"مثّل أنك وجدت كنزًا",
-"قل كلمة وكأنها سر خطير",
-"تكلم بدون تحريك يديك لمدة 20 ثانية",
-"مثّل أنك تحاول النوم وهناك إزعاج",
-"قل جملة وكأنك شخصية شريرة",
-"مثّل أنك تأخرت عن طائرة ✈️",
-"اعمل حركة مضحكة بدون كلام",
-"تكلم وكأنك تقدم برنامج طبخ",
-"مثّل أنك تذوقت أكلة حارة 🌶️",
-"قل جملة وكأنك في إعلان شامبو",
-"مثّل أنك تشاهد فيلمًا لأول مرة",
-"تكلم كأنك مدرس تاريخ",
-"مثّل أنك نسيت واجبك",
-"قل جملة بصوت طفل صغير",
-"مثّل أنك تشتري شيء غالي جدًا",
-"تكلم كأنك بائع سيارات",
-"اعمل صوت قطار 🚆",
-"اعمل صوت طائرة ✈️",
-"مثّل أنك في المصعد مع شخص غريب",
-"قل جملة وكأنك شاعر",
-"تكلم كأنك شاعر قديم",
-"مثّل أنك تقدم نشرة جوية 🌧️",
-"قل جملة وكأنك قائد جيش في فيلم",
-"مثّل أنك تتفاوض على سعر شيء",
-"تكلم كأنك تتحدث في مؤتمر مهم",
-"اعمل صوت إنذار 🚨",
-"مثّل أنك سمعت خبرًا صادمًا",
-"قل جملة وأنت تضحك بطريقة مصطنعة",
-"تكلم وكأنك لا تعرف معنى الكلمات",
-"مثّل أنك تحاول إخفاء ضحكتك",
-"قل جملة وكأنك تغضب من شيء تافه",
-"مثّل أنك تنتظر طلبك في مطعم",
-"تكلم كأنك تتحدث عبر هاتف قديم",
-"قل جملة وأنت تمثل أنك في الفضاء 🚀",
-"مثّل أنك اكتشفت كوكبًا جديدًا",
-"تكلم كأنك شخصية في لعبة",
-"اعمل حركة انتصار غريبة",
-"مثّل أنك صحيت وما تعرف وين أنت"
-],
-"ذكاء 🧠":[
-"اذكر 5 أشياء تبدأ بحرف م خلال 5 ثواني",
-"اذكر 5 مدن بسرعة",
-"قل 7 ألوان بسرعة",
-"قل 3 أمثال شعبية بسرعة",
-"اذكر 4 أشياء موجودة في المطبخ خلال 5 ثواني",
-"اذكر 5 حيوانات تبدأ بحرف أ",
-"اذكر 5 دول عربية",
-"اذكر 5 أكلات شعبية",
-"اذكر 5 أشياء لونها أسود",
-"اذكر 5 أشياء تستخدمها يوميًا",
-"اذكر 5 أسماء تبدأ بحرف س",
-"اذكر 5 فواكه",
-"اذكر 5 خضروات",
-"اذكر 5 مهن",
-"اذكر 5 رياضات",
-"اذكر 5 أشياء موجودة في السيارة",
-"اذكر 5 أشياء موجودة في المدرسة",
-"اذكر 5 أدوات منزلية",
-"اذكر 5 أشياء تبدأ بحرف ب",
-"اذكر 5 حيوانات بحرية",
-"اذكر 5 دول آسيوية",
-"اذكر 5 عواصم",
-"اذكر 5 أسماء أولاد",
-"اذكر 5 أسماء بنات",
-"اذكر 5 أشياء تطير",
-"اذكر 5 أشياء لها عجلات",
-"اذكر 5 أشياء باردة",
-"اذكر 5 أشياء ساخنة",
-"اذكر 5 أشياء دائرية",
-"اذكر 5 أشياء مربعة",
-"اذكر 5 كلمات من 3 أحرف",
-"اذكر 5 كلمات تبدأ بحرف ع",
-"اذكر 5 حيوانات تبدأ بحرف ك",
-"اذكر 5 أكلات تبدأ بحرف م",
-"اذكر 5 مدن سعودية",
-"اذكر 5 مناطق في السعودية",
-"اذكر 5 دول تبدأ بحرف م",
-"اذكر 5 أشياء تستخدم في المكتب",
-"اذكر 5 أجهزة إلكترونية",
-"اذكر 5 تطبيقات تستخدمها",
-"اذكر 5 أشياء موجودة في غرفة النوم",
-"اذكر 5 أشياء موجودة في الحمام",
-"اذكر 5 أشياء موجودة في الحديقة",
-"اذكر 5 أشياء لونها أبيض",
-"اذكر 5 أشياء لونها أحمر",
-"اذكر 5 أشياء لونها أخضر",
-"اذكر 5 أشياء لونها أزرق",
-"اذكر 5 حيوانات تبدأ بحرف ب",
-"اذكر 5 حيوانات تبدأ بحرف س",
-"اذكر 5 فواكه تبدأ بحرف ت",
-"اذكر 5 خضروات تبدأ بحرف ب",
-"اذكر 5 أشياء تبدأ بحرف ن",
-"اذكر 5 أشياء تبدأ بحرف ر",
-"اذكر 5 أشياء تبدأ بحرف د",
-"اذكر 5 أشياء تبدأ بحرف ل",
-"اذكر 5 أشياء تبدأ بحرف و",
-"اذكر 5 أشياء تبدأ بحرف ف",
-"اذكر 5 كلمات لها علاقة بالبحر",
-"اذكر 5 كلمات لها علاقة بالسفر",
-"اذكر 5 كلمات لها علاقة بالرياضة",
-"اذكر 5 كلمات لها علاقة بالمدرسة",
-"اذكر 5 كلمات لها علاقة بالسيارات",
-"اذكر 5 كلمات لها علاقة بالطعام",
-"اذكر 5 كلمات لها علاقة بالشتاء",
-"اذكر 5 كلمات لها علاقة بالصيف",
-"اذكر 5 أشياء تحتاج كهرباء",
-"اذكر 5 أشياء تعمل بالبطارية",
-"اذكر 5 أشياء موجودة في المطبخ",
-"اذكر 5 أشياء موجودة في الثلاجة",
-"اذكر 5 أشياء يمكن كسرها",
-"اذكر 5 أشياء يمكن فتحها",
-"اذكر 5 أشياء يمكن إغلاقها",
-"اذكر 5 أشياء لها باب",
-"اذكر 5 أشياء لها شاشة",
-"اذكر 5 أشياء لها صوت",
-"اذكر 5 أشياء تتحرك بسرعة",
-"اذكر 5 أشياء تتحرك ببطء",
-"اذكر 5 أشياء كبيرة",
-"اذكر 5 أشياء صغيرة",
-"اذكر 5 أشياء طويلة",
-"اذكر 5 أشياء قصيرة",
-"اذكر 5 أشياء ثقيلة",
-"اذكر 5 أشياء خفيفة",
-"اذكر 5 أشياء شفافة",
-"اذكر 5 أشياء خشبية",
-"اذكر 5 أشياء معدنية",
-"اذكر 5 أشياء بلاستيكية",
-"اذكر 5 أشياء تستخدم في السفر",
-"اذكر 5 أشياء تأخذها معك للمدرسة",
-"اذكر 5 أشياء تأخذها معك للبحر",
-"اذكر 5 أشياء تحتاجها للنوم",
-"اذكر 5 أشياء تحتاجها للأكل",
-"اذكر 5 أشياء تستخدمها للكتابة",
-"اذكر 5 أشياء تستخدمها للتنظيف",
-"اذكر 5 أشياء تستخدمها للطبخ",
-"اذكر 5 أشياء يمكن ارتداؤها",
-"اذكر 5 أشياء يمكن حملها",
-"اذكر 5 أشياء موجودة خارج المنزل",
-"اذكر 5 أشياء موجودة داخل المنزل"
-],
-"تمثيل 🎭":[
-"مثّل شخصية كرتونية وعلى الباقين تخمينها",
-"مثّل أنك فزت بمليون ريال",
-"مثّل أنك بائع وتحاول بيع شيء عشوائي",
-"مثّل مشهد تأخرك عن موعد مهم",
-"مثّل أنك لاعب مشهور والكل يحاول يعرف من أنت",
-"مثّل أنك مذيع في مباراة نهائية",
-"مثّل أنك مدرس غاضب",
-"مثّل أنك طالب نسي واجبه",
-"مثّل أنك طبيب يفحص مريضًا",
-"مثّل أنك طباخ في مطعم مشهور",
-"مثّل أنك سائق تاكسي",
-"مثّل أنك شرطي يحقق في قضية",
-"مثّل أنك مذيع أخبار",
-"مثّل أنك ممثل في فيلم رعب",
-"مثّل أنك بطل خارق",
-"مثّل أنك شرير في فيلم",
-"مثّل أنك ملك يتحدث مع شعبه",
-"مثّل أنك قائد فريق",
-"مثّل أنك حكم مباراة",
-"مثّل أنك لاعب سجل هدفًا",
-"مثّل أنك خسرت مباراة",
-"مثّل أنك ربحت بطولة",
-"مثّل أنك تبحث عن كنز",
-"مثّل أنك ضايع في الصحراء",
-"مثّل أنك وصلت إلى بلد جديد",
-"مثّل أنك في المطار",
-"مثّل أنك فاتتك الطائرة",
-"مثّل أنك تنتظر صديقًا تأخر",
-"مثّل أنك في مطعم والطلب تأخر",
-"مثّل أنك تذوقت أكلة حارة",
-"مثّل أنك تشاهد مباراة حماسية",
-"مثّل أنك تشاهد فيلم رعب",
-"مثّل أنك سمعت صوتًا غريبًا",
-"مثّل أنك اكتشفت سرًا",
-"مثّل أنك وجدت هاتفًا ضائعًا",
-"مثّل أنك فقدت مفتاحك",
-"مثّل أنك فزت بجائزة",
-"مثّل أنك خسرت جائزة",
-"مثّل أنك تقدم برنامج مسابقات",
-"مثّل أنك مذيع طقس",
-"مثّل أنك مراسل في الشارع",
-"مثّل أنك بائع في سوق",
-"مثّل أنك موظف استقبال",
-"مثّل أنك مدير شركة",
-"مثّل أنك في اجتماع مهم",
-"مثّل أنك تجري مقابلة عمل",
-"مثّل أنك مقدم برنامج طبخ",
-"مثّل أنك مدرب رياضي",
-"مثّل أنك لاعب كرة قدم",
-"مثّل أنك لاعب كرة سلة",
-"مثّل أنك لاعب تنس",
-"مثّل أنك سباق سيارات",
-"مثّل أنك تقود سيارة سريعة",
-"مثّل أنك تصلح سيارة",
-"مثّل أنك تصلح جهازًا خربانًا",
-"مثّل أنك تحاول فتح باب عالق",
-"مثّل أنك تحاول إيقاف سيارة",
-"مثّل أنك تنتظر المصعد",
-"مثّل أنك داخل مصعد توقف فجأة",
-"مثّل أنك في مستشفى",
-"مثّل أنك مريض وتريد العلاج",
-"مثّل أنك ممرض",
-"مثّل أنك صيدلي",
-"مثّل أنك مدرس رياضيات",
-"مثّل أنك مدرس لغة عربية",
-"مثّل أنك مدرس إنجليزي",
-"مثّل أنك طالب مشاغب",
-"مثّل أنك طالب متفوق",
-"مثّل أنك نسيت موعدًا مهمًا",
-"مثّل أنك تذكرت شيئًا فجأة",
-"مثّل أنك تلقي خطابًا أمام جمهور",
-"مثّل أنك تتحدث أمام كاميرا",
-"مثّل أنك مشهور والناس تصورك",
-"مثّل أنك وصلت لمكان لأول مرة",
-"مثّل أنك تبحث عن عنوان",
-"مثّل أنك تسأل عن الاتجاهات",
-"مثّل أنك ضيعت طريقك",
-"مثّل أنك اكتشفت مكانًا سريًا",
-"مثّل أنك تتلقى خبرًا سعيدًا",
-"مثّل أنك تتلقى خبرًا محزنًا",
-"مثّل أنك فزت في قرعة",
-"مثّل أنك خسرت آخر فرصة",
-"مثّل أنك تحاول إقناع شخص",
-"مثّل أنك تتفاوض على سعر",
-"مثّل أنك تشتري سيارة",
-"مثّل أنك تبيع سيارة",
-"مثّل أنك تفتح هدية",
-"مثّل أنك وجدت هدية مفاجئة",
-"مثّل أنك تشاهد ألعابًا نارية",
-"مثّل أنك في حفلة كبيرة",
-"مثّل أنك وصلت متأخرًا للحفلة",
-"مثّل أنك تبحث عن مقعد",
-"مثّل أنك تحاول النوم",
-"مثّل أنك استيقظت على صوت قوي",
-"مثّل أنك سمعت خبرًا غريبًا",
-"مثّل أنك اكتشفت أنك في حلم"
-],
-"سرعة ⚡️":[
-"قل 5 أكلات في 5 ثواني",
-"قل 5 أسماء خلال 5 ثواني",
-"قل كلمة صعبة 5 مرات بسرعة",
-"اذكر 5 أشياء لونها أبيض بسرعة",
-"اذكر 5 أشياء تستخدمها يوميًا خلال 5 ثواني",
-"قل أسماء 5 دول بأسرع ما تستطيع",
-"قل 5 فواكه بسرعة",
-"قل 5 خضروات بسرعة",
-"قل 5 حيوانات بسرعة",
-"قل 5 مدن بسرعة",
-"قل 5 مهن بسرعة",
-"قل 5 رياضات بسرعة",
-"قل 5 ألوان بسرعة",
-"قل 5 مشروبات بسرعة",
-"قل 5 حلويات بسرعة",
-"قل 5 أشياء في المطبخ بسرعة",
-"قل 5 أشياء في السيارة بسرعة",
-"قل 5 أشياء في المدرسة بسرعة",
-"قل 5 أشياء في البيت بسرعة",
-"قل 5 أسماء أولاد بسرعة",
-"قل 5 أسماء بنات بسرعة",
-"قل 5 دول عربية بسرعة",
-"قل 5 عواصم بسرعة",
-"قل 5 أشياء تبدأ بحرف م",
-"قل 5 أشياء تبدأ بحرف س",
-"قل 5 أشياء تبدأ بحرف ب",
-"قل 5 أشياء تبدأ بحرف ع",
-"قل 5 أشياء تبدأ بحرف ك",
-"قل 5 أشياء تبدأ بحرف ر",
-"قل 5 أشياء تبدأ بحرف د",
-"قل 5 حيوانات تبدأ بحرف أ",
-"قل 5 حيوانات تبدأ بحرف ب",
-"قل 5 حيوانات تبدأ بحرف س",
-"قل 5 أكلات تبدأ بحرف م",
-"قل 5 فواكه تبدأ بحرف ت",
-"قل 5 خضروات تبدأ بحرف ب",
-"قل 5 أشياء لونها أحمر",
-"قل 5 أشياء لونها أخضر",
-"قل 5 أشياء لونها أزرق",
-"قل 5 أشياء لونها أسود",
-"قل 5 أشياء لونها أصفر",
-"قل 5 أشياء دائرية",
-"قل 5 أشياء مربعة",
-"قل 5 أشياء كبيرة",
-"قل 5 أشياء صغيرة",
-"قل 5 أشياء باردة",
-"قل 5 أشياء ساخنة",
-"قل 5 أشياء تطير",
-"قل 5 أشياء لها عجلات",
-"قل 5 أجهزة إلكترونية",
-"قل 5 تطبيقات",
-"قل 5 أشياء تحتاج كهرباء",
-"قل 5 أشياء تعمل بالبطارية",
-"قل 5 أشياء يمكن ارتداؤها",
-"قل 5 أشياء يمكن حملها",
-"قل 5 أشياء تستخدم للكتابة",
-"قل 5 أشياء تستخدم للتنظيف",
-"قل 5 أشياء تستخدم للطبخ",
-"قل 5 أشياء تستخدم في السفر",
-"قل 5 أشياء في غرفة النوم",
-"قل 5 أشياء في الحمام",
-"قل 5 أشياء في الحديقة",
-"قل 5 أشياء في الشارع",
-"قل 5 أشياء في المكتب",
-"قل 5 أشياء في الملعب",
-"قل 5 أشياء في البحر",
-"قل 5 كلمات لها علاقة بالسفر",
-"قل 5 كلمات لها علاقة بالرياضة",
-"قل 5 كلمات لها علاقة بالطعام",
-"قل 5 كلمات لها علاقة بالمدرسة",
-"قل 5 كلمات لها علاقة بالسيارات",
-"قل 5 كلمات لها علاقة بالشتاء",
-"قل 5 كلمات لها علاقة بالصيف",
-"قل 5 كلمات من 3 أحرف",
-"قل 5 أسماء تبدأ بحرف ن",
-"قل 5 أسماء تبدأ بحرف ل",
-"قل 5 أسماء تبدأ بحرف ف",
-"قل 5 أسماء تبدأ بحرف و",
-"قل 5 مدن سعودية",
-"قل 5 مناطق سعودية",
-"قل 5 دول آسيوية",
-"قل 5 دول أوروبية",
-"قل 5 دول أفريقية",
-"قل 5 دول تبدأ بحرف م",
-"قل 5 أشياء خشبية",
-"قل 5 أشياء معدنية",
-"قل 5 أشياء بلاستيكية",
-"قل 5 أشياء شفافة",
-"قل 5 أشياء ثقيلة",
-"قل 5 أشياء خفيفة",
-"قل 5 أشياء طويلة",
-"قل 5 أشياء قصيرة",
-"قل 5 أشياء تتحرك بسرعة",
-"قل 5 أشياء تتحرك ببطء",
-"قل 5 أشياء لها شاشة",
-"قل 5 أشياء لها صوت",
-"قل 5 أشياء لها باب",
-"قل 5 أشياء يمكن فتحها",
-"قل 5 أشياء يمكن إغلاقها",
-"قل 5 أشياء تحتاجها للنوم"
-],
-"جريئة 😈":[
-"قل جملة وكأنك شخصية شريرة",
-"تكلم بلهجة مختلفة لمدة 20 ثانية",
-"قل اسمك وكأنك في فيلم أكشن",
-"اعمل تمثالًا ثابتًا لمدة 15 ثانية",
-"قل جملة عادية بصوت غامض جدًا",
-"تكلم لمدة 10 ثواني بدون استخدام كلمة نعم أو لا",
-"قل جملة بصوت مخيف",
-"تكلم وكأنك شخصية شريرة لمدة 15 ثانية",
-"قل جملة وكأنك قائد عصابة في فيلم خيالي",
-"مثّل أنك شخص مشهور",
-"تكلم بلهجة مختلفة يختارها اللاعبون",
-"قل جملة وأنت لا تبتسم",
-"حاول ألا تضحك لمدة 20 ثانية",
-"انظر للاعب أمامك بدون ضحك لمدة 15 ثانية",
-"قل جملة وأنت تمثل أنك واثق جدًا",
-"تكلم بصوت منخفض جدًا",
-"تكلم بصوت عالي لمدة 5 ثواني",
-"قل جملة بطريقة غامضة",
-"مثّل أنك تعرف سرًا ولا تريد قوله",
-"قل كلمة بطريقة مخيفة",
-"تكلم كأنك في فيلم رعب",
-"مثّل أنك شاهدت شيئًا غريبًا",
-"قل جملة وكأنك تتحدى الجميع",
-"مثّل أنك دخلت مكانًا ممنوعًا في فيلم خيالي",
-"قل جملة وكأنك بطل فيلم",
-"تكلم كأنك مذيع أخبار عاجلة",
-"مثّل أنك متهم وتحاول الدفاع عن نفسك في مشهد تمثيلي",
-"قل جملة وأنت تمثل أنك غاضب",
-"تكلم وكأنك قائد فريق",
-"مثّل أنك تواجه خصمًا في لعبة",
-"قل جملة وكأنك ستكشف سرًا",
-"تكلم بطريقة رسمية جدًا لمدة 15 ثانية",
-"تكلم بطريقة مضحكة جدًا لمدة 15 ثانية",
-"قل اسم لاعب وكأنك تناديه من بعيد",
-"مثّل أنك فزت في معركة داخل لعبة",
-"مثّل أنك خسرت شيئًا مهمًا",
-"قل جملة وكأنها آخر جملة في فيلم",
-"تكلم كأنك روبوت شرير",
-"مثّل أنك تحقق في لغز",
-"قل جملة وكأنك تعرف المستقبل",
-"مثّل أنك اكتشفت خدعة",
-"تكلم وكأنك جاسوس في فيلم خيالي",
-"مثّل أنك تحاول الهروب من موقف محرج",
-"قل جملة وأنت ثابت تمامًا",
-"تكلم بدون تحريك يديك لمدة 20 ثانية",
-"مثّل أنك تتحدى لاعبًا في مسابقة",
-"قل جملة وكأنك ستبدأ مهمة سرية",
-"مثّل أنك في غرفة مظلمة في فيلم",
-"تكلم وكأنك بطل خارق",
-"مثّل أنك شرير لكنه مضحك",
-"قل جملة بطريقة مبالغ فيها",
-"تكلم وكأنك شخصية من لعبة فيديو",
-"مثّل أنك خسرت أمام خصم قوي",
-"قل جملة وكأنك منتصر",
-"مثّل أنك تنتظر نتيجة مهمة",
-"تكلم وكأنك في مؤتمر صحفي",
-"قل جملة وكأنك تعلن قرارًا مهمًا",
-"مثّل أنك تحاول إقناع الجميع بفكرة غريبة",
-"تكلم وكأنك شخص لا يعرف أي شيء",
-"قل جملة وكأنك قائد في فيلم",
-"مثّل أنك وصلت لمكان سري",
-"تكلم وكأنك اكتشفت مؤامرة في فيلم خيالي",
-"قل جملة وكأنك تحذر الجميع",
-"مثّل أنك سمعت صوتًا خلفك",
-"تكلم وكأنك تتحدث مع شخص غير موجود",
-"قل جملة وكأنك ستبدأ سباقًا",
-"مثّل أنك تواجه تحديًا صعبًا",
-"تكلم كأنك بطل لعبة",
-"قل جملة وكأنك ستدخل مباراة",
-"مثّل أنك تستعد لمواجهة مهمة",
-"تكلم وكأنك تقدم خطابًا قويًا",
-"قل جملة بطريقة واثقة جدًا",
-"مثّل أنك تملك خطة سرية",
-"تكلم وكأنك تقدم إعلانًا مهمًا",
-"قل جملة وكأنك تحاول تخويف شخص في فيلم فقط",
-"مثّل أنك اكتشفت كنزًا",
-"تكلم كأنك شخص من المستقبل",
-"قل جملة وكأنك رجعت من المستقبل",
-"مثّل أنك ترى شيئًا لا يراه الآخرون",
-"تكلم وكأنك محقق",
-"قل جملة وكأنك تحقق في قضية خيالية",
-"مثّل أنك وجدت دليلًا مهمًا",
-"تكلم وكأنك قائد مهمة",
-"قل جملة وكأنك تعلن بداية اللعبة",
-"مثّل أنك تخسر ثم تعود للفوز",
-"تكلم وكأنك في نهائي بطولة",
-"قل جملة وكأنك فزت بالبطولة",
-"مثّل أنك تنتظر الحكم",
-"تكلم وكأنك تقدم برنامجًا سريًا",
-"قل جملة وكأنك تكشف مفاجأة",
-"مثّل أنك شخص لا يخاف شيئًا",
-"تكلم وكأنك في مشهد سينمائي",
-"قل جملة وكأن الجميع ينتظر جوابك",
-"مثّل أنك دخلت تحديًا بدون استعداد",
-"تكلم وكأنك ستبدأ مغامرة",
-"قل جملة وكأنها بداية فيلم"
-],
-"تحديات 👥":[
-"اختر لاعبًا وقل له 3 أشياء إيجابية عنه",
-"صف لاعبًا بدون ذكر اسمه وعلى الباقين تخمينه",
-"اختر لاعبًا ليعطيك كلمة واستخدمها في جملة مضحكة",
-"حاول ألا تضحك لمدة 10 ثواني",
-"اختر لاعبًا وقل له تحديًا بسيطًا وآمنًا لمدة 10 ثواني",
-"اختر لاعبًا وقل له موقفًا مضحكًا حصل لك",
-"اختر لاعبًا وقل له شيئًا تتفق معه فيه",
-"اختر لاعبًا وقل له شيئًا تحبه في شخصيته",
-"اختر لاعبًا وقل له لقبًا مضحكًا ولطيفًا",
-"اختر لاعبًا واجعله يختار لك كلمة",
-"اجعل لاعبًا آخر يقلدك لمدة 10 ثواني",
-"اختر لاعبًا واطلب منه حركة مضحكة",
-"اختر لاعبين واجعلهما يتنافسان في سرعة الكلام",
-"اختر لاعبًا وقل له كلمة وعلى الجميع تخمين معناها",
-"اجعل لاعبًا يختار لك تحديًا بسيطًا",
-"اختر لاعبًا وامدحه بثلاث كلمات",
-"اختر لاعبًا وقل له أكثر شيء يضحكك فيه",
-"اختر لاعبًا وقل له موقفًا تتذكره معه",
-"اختر لاعبًا واجعله يقول نكتة",
-"اختر لاعبًا واجعله يمثل شخصية",
-"اختر لاعبًا وقل له كلمة تبدأ بحرف يختاره",
-"اختر لاعبًا واجعله يذكر 5 أشياء بسرعة",
-"اختر لاعبًا واجعله يقلد صوت حيوان",
-"اختر لاعبًا واجعله يتكلم بصوت روبوت",
-"اختر لاعبًا واجعله يمثل أنه مذيع",
-"اختر لاعبًا واجعله يقول جملة بطريقة مضحكة",
-"اختر لاعبًا واجعله يختار لونًا",
-"اختر لاعبًا وقل له أكلة تحبها",
-"اختر لاعبًا وقل له مدينة تتمنى تزورها",
-"اختر لاعبًا وقل له رياضة تحبها",
-"اختر لاعبًا واجعله يخمن كلمة تفكر فيها",
-"اختر لاعبًا واصف شيئًا بدون ذكر اسمه",
-"اختر لاعبًا واجعله يخمن الشيء",
-"اختر لاعبًا وقل له سؤالًا سريعًا",
-"اختر لاعبًا واجعله يجاوب خلال 3 ثواني",
-"اختر لاعبًا واطلب منه قول 5 أسماء",
-"اختر لاعبًا واطلب منه قول 5 أكلات",
-"اختر لاعبًا واطلب منه قول 5 مدن",
-"اختر لاعبًا واطلب منه قول 5 حيوانات",
-"اختر لاعبًا واطلب منه قول 5 ألوان",
-"اختر لاعبًا واجعله يقلد حركة تختارها",
-"اختر لاعبًا واجعله يتجمد مكانه 10 ثواني",
-"اختر لاعبًا وابدأ معه تحدي عدم الضحك",
-"اختر لاعبًا وقل له جملة إيجابية",
-"اختر لاعبًا وقل له شكرًا على شيء",
-"اختر لاعبًا وقل له موقفًا طريفًا",
-"اختر لاعبًا واطلب منه قصة قصيرة",
-"اختر لاعبًا واجعله يحكي موقفًا محرجًا بشكل عام",
-"اختر لاعبًا واجعله يذكر هواية يحبها",
-"اختر لاعبًا واجعله يذكر أكلة يكرهها",
-"اختر لاعبًا واجعله يذكر مكانًا يحبه",
-"اختر لاعبًا واجعله يذكر فيلمًا يحبه",
-"اختر لاعبًا واجعله يذكر لعبة يحبها",
-"اختر لاعبًا واجعله يذكر رياضة يحبها",
-"اختر لاعبًا واجعله يقول اسم شخصية مشهورة",
-"اختر لاعبًا واجعله يقلد مذيعًا",
-"اختر لاعبًا واجعله يقلد لاعب كرة",
-"اختر لاعبًا واجعله يقلد شخصية كرتونية",
-"اختر لاعبًا واجعله يقول جملة بصوت طفل",
-"اختر لاعبًا واجعله يقول جملة بصوت كبير في السن",
-"اختر لاعبًا واجعله يقول جملة بصوت روبوت",
-"اختر لاعبًا واجعله يتحدث بلهجة مختلفة",
-"اختر لاعبًا واجعله يقول كلمة صعبة",
-"اختر لاعبًا واجعله يقولها 5 مرات",
-"اختر لاعبًا واجعله يختار لك رقمًا",
-"اختر لاعبًا واجعله يختار لك حرفًا",
-"اختر لاعبًا واجعله يختار لك لونًا",
-"اختر لاعبًا واجعله يختار لك حركة",
-"اختر لاعبين واجعلهما يقولان نفس الكلمة في نفس الوقت",
-"اختر لاعبين واجعلهما يتحديان بعضهما في عدم الضحك",
-"اختر لاعبين واجعلهما يمثلان مشهدًا قصيرًا",
-"اختر لاعبين واجعلهما يتبادلان الأدوار",
-"اختر لاعبين واجعلهما يخمنان كلمة",
-"اختر لاعبًا واجعله يصفك بثلاث كلمات",
-"اختر لاعبًا واجعله يقول أول شيء يخطر في باله",
-"اختر لاعبًا واجعله يختار تحديًا للمجموعة",
-"اختر لاعبًا واجعله يبدأ قصة وأكملها أنت",
-"اختر لاعبًا وابدأ معه قصة من جملة واحدة",
-"اختر لاعبًا وقل له اسم مدينة وعلى الباقين قول دولة منها",
-"اختر لاعبًا وقل له لونًا وعلى الباقين ذكر شيء بهذا اللون",
-"اختر لاعبًا وقل له حيوانًا وعلى الباقين تقليده",
-"اختر لاعبًا وقل له أكلة وعلى الباقين تخمينها من وصفك",
-"اختر لاعبًا واجعله يمثل شيئًا وعلى الباقين تخمينه",
-"اختر لاعبًا واجعله يقول 3 كلمات تبدأ بنفس الحرف",
-"اختر لاعبًا واجعله يقول 3 أسماء في 3 ثواني",
-"اختر لاعبًا واجعله يقول 3 أكلات في 3 ثواني",
-"اختر لاعبًا واجعله يقول 3 مدن في 3 ثواني",
-"اختر لاعبًا واجعله يقول 3 حيوانات في 3 ثواني",
-"اختر لاعبًا واجعله يقول 3 ألوان في 3 ثواني",
-"اختر لاعبًا وقل له شكرًا بطريقة مضحكة",
-"اختر لاعبًا وقل له تحية بطريقة غريبة",
-"اختر لاعبًا واجعله يختار أول تحدي يخطر بباله",
-"اختر لاعبًا وابدأ معه جملة وعلى الآخر إكمالها",
-"اختر لاعبًا واجعله يقول كلمة بدون حرف معين",
-"اختر لاعبًا واجعله يتحدث لمدة 10 ثواني بدون توقف",
-"اختر لاعبًا واطلب منه وصف مكان بدون ذكر اسمه",
-"اختر لاعبًا واطلب منه وصف أكلة بدون ذكر اسمها",
-"اختر لاعبًا واطلب منه وصف حيوان بدون ذكر اسمه"
-]
-};
+
 let players=[];
 let selectedCategories=[];
+let currentPlayer=0;
+let currentChallenge=null;
+let currentCategory=null;
+let rotation=0;
+
+let timerInterval=null;
+let timeLeft=6;
 let scores={};
-let currentPlayerIndex=-1;
-let wheelRotation=0;
-let spinning=false;
+
+/* الأسئلة التي ظهرت سابقًا */
+let usedQuestions={};
+
+/* تجهيز قائمة عدم التكرار لكل تصنيف */
+function resetUsedQuestions(){
+
+    usedQuestions={};
+
+    selectedCategories.forEach(category=>{
+        usedQuestions[category]=new Set();
+    });
+}
+
 function showPlayers(){
+
     document.getElementById("startPage").classList.add("hidden");
     document.getElementById("playersPage").classList.remove("hidden");
-    createInitialInputs();
-}
-function createInitialInputs(){
-    const box=document.getElementById("playersInputs");
-    box.innerHTML="";
-    for(let i=0;i<4;i++){
-        const input=document.createElement("input");
-        input.placeholder=(i+1)+"-";
-        input.id="player"+i;
-        box.appendChild(input);
+
+    if(!document.querySelector("#playersInputs input")){
+        addPlayer();
+        addPlayer();
     }
 }
+
 function addPlayer(){
-    const inputs=document.querySelectorAll("#playersInputs input");
-    if(inputs.length>=12){
+
+    const box=document.getElementById("playersInputs");
+
+    if(box.children.length>=12){
         alert("الحد الأقصى 12 لاعب");
         return;
     }
-    const i=inputs.length;
+
     const input=document.createElement("input");
-    input.placeholder=(i+1)+"-";
-    input.id="player"+i;
-    document.getElementById("playersInputs").appendChild(input);
+
+    input.placeholder=`اسم اللاعب ${box.children.length+1}`;
+
+    box.appendChild(input);
 }
+
 function goCategories(){
-    players=[];
-    const inputs=document.querySelectorAll("#playersInputs input");
-    inputs.forEach(input=>{
-        const name=input.value.trim();
-        if(name){
-            players.push(name);
-        }
-    });
-    if(players.length<2){
-        alert("لازم تدخل لاعبين على الأقل");
+
+    const names=[
+        ...document.querySelectorAll("#playersInputs input")
+    ]
+    .map(i=>i.value.trim())
+    .filter(Boolean);
+
+    if(names.length<2){
+
+        alert("أدخل اسم لاعبين على الأقل");
+
         return;
     }
-    document.getElementById("playersPage").classList.add("hidden");
-    document.getElementById("categoriesPage").classList.remove("hidden");
-}
-function toggleCategory(element,name){
-    if(selectedCategories.includes(name)){
-        selectedCategories=selectedCategories.filter(x=>x!==name);
-        element.classList.remove("selected");
-    }else{
-        selectedCategories.push(name);
-        element.classList.add("selected");
-    }
-}
-function startGame(){
-    if(selectedCategories.length===0){
-        alert("اختر نوع تحدي واحد على الأقل");
-        return;
-    }
+
+    players=names;
+
     scores={};
+
     players.forEach(player=>{
         scores[player]=0;
     });
+
+    document.getElementById("playersPage").classList.add("hidden");
+
+    document.getElementById("categoriesPage").classList.remove("hidden");
+}
+
+function toggleCategory(element,name){
+
+    element.classList.toggle("selected");
+
+    if(selectedCategories.includes(name)){
+
+        selectedCategories=
+            selectedCategories.filter(x=>x!==name);
+
+    }else{
+
+        selectedCategories.push(name);
+    }
+}
+
+function startGame(){
+
+    if(!selectedCategories.length){
+
+        alert("اختر نوع تحدي واحد على الأقل");
+
+        return;
+    }
+
+    /*
+      تصفير الأسئلة المستخدمة
+      عشان كل لعبة جديدة تبدأ من الصفر
+    */
+    resetUsedQuestions();
+
     document.getElementById("categoriesPage").classList.add("hidden");
+
     document.getElementById("wheelArea").style.display="block";
+
     buildWheel();
 }
+
 function buildWheel(){
+
     const wheel=document.getElementById("wheel");
-    wheel.innerHTML="";
-    const n=players.length;
+
+    const n=selectedCategories.length;
+
     const colors=[
         "#7c3cff",
-        "#e83e8c",
-        "#ff5722",
+        "#ff3b4d",
         "#00a8ff",
         "#00c853",
-        "#ffb300",
-        "#9c27b0",
-        "#03a9f4",
-        "#f44336",
-        "#8bc34a",
-        "#673ab7",
-        "#ff9800"
+        "#ff9800",
+        "#e91e63"
     ];
-    const angle=360/n;
-    let gradient="conic-gradient(";
-    players.forEach((player,i)=>{
-        gradient+=`${colors[i%colors.length]} ${i*angle}deg ${(i+1)*angle}deg`;
-        if(i<players.length-1){
-            gradient+=",";
-        }
-    });
-    gradient+=")";
-    wheel.style.background=gradient;
-    players.forEach((player,i)=>{
-        const nameElement=document.createElement("div");
-        nameElement.className="segment-name";
-        nameElement.textContent=player;
-        const start=i*angle;
-        const middle=start+angle/2;
-        const radius=36;
-        const x=50+radius*Math.cos((middle-90)*Math.PI/180);
-        const y=50+radius*Math.sin((middle-90)*Math.PI/180);
-        nameElement.style.left=x+"%";
-        nameElement.style.top=y+"%";
-        nameElement.style.transform=
-            `translate(-50%,-50%) skewY(${-(90-angle)}deg) rotate(${-start}deg)`;
-        wheel.appendChild(nameElement);
+
+    wheel.innerHTML="";
+
+    wheel.style.background=
+        `conic-gradient(${
+            selectedCategories
+            .map((_,i)=>
+                `${colors[i%colors.length]}
+                ${i*100/n}%
+                ${(i+1)*100/n}%`
+            )
+            .join(",")
+        })`;
+
+    selectedCategories.forEach((name,i)=>{
+
+        const label=document.createElement("div");
+
+        label.className="segment-name";
+
+        const angle=(i+.5)*360/n-90;
+
+        const radius=38;
+
+        label.style.left=
+            `${50+radius*Math.cos(angle*Math.PI/180)}%`;
+
+        label.style.top=
+            `${50+radius*Math.sin(angle*Math.PI/180)}%`;
+
+        label.textContent=name;
+
+        wheel.appendChild(label);
     });
 }
+
 function spinWheel(){
-    if(spinning || currentPlayerIndex!==-1){
+
+    if(!players.length || !selectedCategories.length){
         return;
     }
-    spinning=true;
+
+    clearInterval(timerInterval);
+
     document.getElementById("spinBtn").disabled=true;
-    const n=players.length;
-    const selected=Math.floor(Math.random()*n);
-    currentPlayerIndex=selected;
-    const angle=360/n;
-    const target=360-(selected*angle+angle/2);
-    wheelRotation+=360*5+target;
+
+    document.getElementById("challengeBox").style.display="none";
+
+    document.getElementById("timeMessage").style.display="none";
+
+    /*
+      اختيار نوع التحدي
+    */
+    const index=
+        Math.floor(
+            Math.random()*selectedCategories.length
+        );
+
+    const n=selectedCategories.length;
+
+    const target=
+        360-(index+.5)*360/n;
+
+    rotation+=
+        1440+
+        target-
+        (rotation%360);
+
     document.getElementById("wheel").style.transform=
-        `rotate(${wheelRotation}deg)`;
+        `rotate(${rotation}deg)`;
+
     setTimeout(()=>{
-        showChallenge(selected);
-        spinning=false;
-    },5100);
+
+        showChallenge(
+            selectedCategories[index]
+        );
+
+    },5200);
 }
-function showChallenge(index){
-    const player=players[index];
-    const turnName=document.getElementById("turnName");
-    turnName.textContent="🔥 تحدي "+player;
-    turnName.style.display="block";
-    const category=
-        selectedCategories[
-            Math.floor(Math.random()*selectedCategories.length)
-        ];
-    const challenges=data[category];
-    const challenge=
-        challenges[
-            Math.floor(Math.random()*challenges.length)
-        ];
-    document.getElementById("challengeText").textContent=challenge;
-    document.getElementById("challengeBox").style.display="block";
-}
-function finishChallenge(){
-    if(currentPlayerIndex===-1){
+
+function showChallenge(category){
+
+    currentCategory=category;
+
+    const list=data[category] || [];
+
+    /*
+      إذا انتهت كل أسئلة التصنيف
+    */
+    if(
+        !usedQuestions[category] ||
+        usedQuestions[category].size>=list.length
+    ){
+
+        alert(
+            `خلصت كل أسئلة ${category} 🎉`
+        );
+
+        document.getElementById("spinBtn").disabled=false;
+
         return;
     }
-    const player=players[currentPlayerIndex];
-    scores[player]++;
-    nextRound();
+
+    /*
+      إنشاء قائمة الأسئلة المتبقية فقط
+    */
+    const availableQuestions=
+        list.filter(
+            question=>
+                !usedQuestions[category].has(question)
+        );
+
+    /*
+      اختيار سؤال لم يظهر من قبل
+    */
+    const randomIndex=
+        Math.floor(
+            Math.random()*availableQuestions.length
+        );
+
+    currentChallenge=
+        availableQuestions[randomIndex];
+
+    /*
+      تسجيل السؤال كمستخدم
+      وبالتالي لن يظهر مرة ثانية
+    */
+    usedQuestions[category].add(currentChallenge);
+
+    const player=
+        players[currentPlayer];
+
+    document.getElementById("turnName").textContent=
+        `🔥 تحدي ${player}`;
+
+    document.getElementById("turnName").style.display=
+        "block";
+
+    document.getElementById("challengeText").textContent=
+        currentChallenge;
+
+    document.getElementById("challengeBox").style.display=
+        "block";
+
+    document.getElementById("finishBtn").disabled=false;
+
+    document.getElementById("skipBtn").disabled=false;
+
+    document.getElementById("timeMessage").style.display=
+        "none";
+
+    /*
+      مؤقت السرعة فقط
+    */
+    if(category==="سرعة ⚡️"){
+
+        startTimer();
+
+    }else{
+
+        document.getElementById("timer").style.display=
+            "none";
+
+    }
 }
+
+function startTimer(){
+
+    clearInterval(timerInterval);
+
+    timeLeft=6;
+
+    const timer=
+        document.getElementById("timer");
+
+    timer.style.display="block";
+
+    timer.textContent="⏱️ 6";
+
+    timerInterval=
+        setInterval(()=>{
+
+            timeLeft--;
+
+            timer.textContent=
+                `⏱️ ${timeLeft}`;
+
+            if(timeLeft<=0){
+
+                clearInterval(timerInterval);
+
+                timerInterval=null;
+
+                timer.style.display="none";
+
+                document.getElementById(
+                    "timeMessage"
+                ).style.display="block";
+
+                document.getElementById(
+                    "finishBtn"
+                ).disabled=true;
+
+                document.getElementById(
+                    "skipBtn"
+                ).disabled=true;
+
+                /*
+                  انتهاء الوقت = بدون نقطة
+                */
+                setTimeout(()=>{
+
+                    nextTurn();
+
+                },700);
+            }
+
+        },1000);
+}
+
+function finishChallenge(){
+
+    if(
+        document.getElementById("finishBtn").disabled
+    ){
+        return;
+    }
+
+    clearInterval(timerInterval);
+
+    timerInterval=null;
+
+    /*
+      اللاعب يأخذ نقطة
+    */
+    scores[
+        players[currentPlayer]
+    ]++;
+
+    nextTurn();
+}
+
 function skipChallenge(){
-    nextRound();
+
+    clearInterval(timerInterval);
+
+    timerInterval=null;
+
+    /*
+      السكيب بدون نقطة
+    */
+    nextTurn();
 }
-function nextRound(){
-    currentPlayerIndex=-1;
-    document.getElementById("turnName").style.display="none";
-    document.getElementById("challengeBox").style.display="none";
-    document.getElementById("spinBtn").disabled=false;
+
+function nextTurn(){
+
+    clearInterval(timerInterval);
+
+    timerInterval=null;
+
+    document.getElementById(
+        "challengeBox"
+    ).style.display="none";
+
+    document.getElementById(
+        "timeMessage"
+    ).style.display="none";
+
+    document.getElementById(
+        "timer"
+    ).style.display="none";
+
+    document.getElementById(
+        "finishBtn"
+    ).disabled=false;
+
+    document.getElementById(
+        "skipBtn"
+    ).disabled=false;
+
+    /*
+      الانتقال للاعب التالي
+    */
+    currentPlayer=
+        (currentPlayer+1)%players.length;
+
+    document.getElementById(
+        "spinBtn"
+    ).disabled=false;
 }
+
 function endGame(){
-    document.getElementById("wheelArea").style.display="none";
-    document.getElementById("results").style.display="block";
-    const ranking=document.getElementById("ranking");
+
+    clearInterval(timerInterval);
+
+    document.getElementById(
+        "wheelArea"
+    ).style.display="none";
+
+    document.getElementById(
+        "results"
+    ).style.display="block";
+
+    const ranking=
+        document.getElementById("ranking");
+
     ranking.innerHTML="";
-    const sorted=players
-        .map(player=>({
-            name:player,
-            score:scores[player]
-        }))
-        .sort((a,b)=>b.score-a.score);
-    sorted.forEach((item,index)=>{
-        const div=document.createElement("div");
-        div.className="rank";
-        let medal="";
-        if(index===0) medal="🥇";
-        else if(index===1) medal="🥈";
-        else if(index===2) medal="🥉";
-        div.textContent=
-            `${medal} ${index+1}. ${item.name} — ${item.score} نقطة`;
-        ranking.appendChild(div);
-    });
+
+    Object.entries(scores)
+        .sort((a,b)=>b[1]-a[1])
+        .forEach(([name,score],i)=>{
+
+            const div=
+                document.createElement("div");
+
+            div.className="rank";
+
+            let medal="";
+
+            if(i===0) medal="🥇";
+            else if(i===1) medal="🥈";
+            else if(i===2) medal="🥉";
+
+            div.textContent=
+                `${medal} ${i+1}. ${name} — ${score} نقطة`;
+
+            ranking.appendChild(div);
+        });
 }
+
 </script>
-</body>
-</html>
