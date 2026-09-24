@@ -3,501 +3,410 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>عجلة التحديات</title>
+<title>🎡 عجلة التحديات</title>
 
 <style>
 *{box-sizing:border-box}
 
 body{
-  margin:0;
-  min-height:100vh;
-  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
-  background:linear-gradient(135deg,#080611,#17102d,#080611);
-  color:#fff;
+    margin:0;
+    font-family:Arial,"Tahoma",sans-serif;
+    background:linear-gradient(135deg,#080814,#11102b);
+    color:white;
+    min-height:100vh;
 }
 
-button,input{font:inherit}
-
-.app{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
+.page{
+    display:none;
+    min-height:100vh;
+    padding:25px 18px;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
 }
+
+.page.active{display:flex}
 
 .card{
-  width:min(900px,100%);
-  background:rgba(18,14,35,.95);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:28px;
-  padding:28px;
-  box-shadow:0 20px 70px rgba(0,0,0,.45);
+    width:100%;
+    max-width:600px;
+    background:rgba(25,23,55,.92);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:28px;
+    padding:30px 20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
 }
-
-.screen{
-  display:none;
-  animation:show .35s ease;
-}
-
-.screen.active{display:block}
-
-@keyframes show{
-  from{opacity:0;transform:translateY(12px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-h1,h2{text-align:center}
 
 h1{
-  font-size:clamp(32px,7vw,58px);
-  margin:5px 0 8px;
+    margin:0 0 10px;
+    font-size:34px;
 }
 
 h2{
-  font-size:clamp(25px,5vw,38px);
-  margin:5px 0 12px;
+    margin:0 0 20px;
 }
 
-.sub{
-  text-align:center;
-  color:#c7bfdc;
-  margin-bottom:25px;
+.subtitle{
+    color:#c8c5dd;
+    margin-bottom:10px;
 }
 
 .creator{
-  text-align:center;
-  color:#a879e8;
-  font-size:14px;
-  font-weight:700;
-  margin:0 0 28px;
+    color:#ffd43b;
+    font-weight:bold;
+    margin:18px 0 25px;
 }
 
-.main-btn{
-  width:100%;
-  border:0;
-  border-radius:18px;
-  padding:17px;
-  background:linear-gradient(135deg,#ffd84d,#ffb300);
-  color:#17110b;
-  font-weight:900;
-  font-size:20px;
-  cursor:pointer;
+button{
+    border:0;
+    border-radius:16px;
+    padding:15px 24px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
 }
 
-.main-btn:active{transform:scale(.98)}
-
-.names{
-  display:grid;
-  gap:12px;
-  margin-bottom:15px;
+button:active{
+    transform:scale(.96);
 }
 
-.name-row{
-  display:flex;
-  gap:8px;
+.start{
+    background:#ffd43b;
+    color:#17120a;
+    width:100%;
 }
 
-.name-row span{
-  width:38px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#cfc5e8;
-  font-weight:bold;
+.next{
+    background:#8b5cf6;
+    color:white;
+    width:100%;
+    margin-top:18px;
 }
 
-input{
-  width:100%;
-  border:1px solid #453a5d;
-  outline:none;
-  background:#100c20;
-  color:white;
-  border-radius:13px;
-  padding:14px;
+.players{
+    display:grid;
+    gap:10px;
 }
 
-input:focus{border-color:#9b5cff}
+.player-row{
+    display:flex;
+    gap:8px;
+}
+
+.player-row span{
+    width:35px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.player-row input{
+    flex:1;
+    background:#111025;
+    border:1px solid #393554;
+    color:white;
+    padding:13px;
+    border-radius:12px;
+    font-size:17px;
+    outline:none;
+    text-align:right;
+}
 
 .add{
-  width:100%;
-  border:1px dashed #7654a5;
-  background:#1d1630;
-  color:#d9c9f7;
-  border-radius:14px;
-  padding:13px;
-  cursor:pointer;
-  margin-bottom:18px;
+    background:#30294f;
+    color:white;
+    width:100%;
+    margin-top:12px;
 }
 
-.categories{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-  margin-bottom:20px;
+.category-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
 }
 
-.cat{
-  border:1px solid #403653;
-  background:#171128;
-  color:white;
-  border-radius:17px;
-  padding:18px 10px;
-  cursor:pointer;
-  transition:.2s;
+.category{
+    background:#211d3d;
+    color:white;
+    border:2px solid transparent;
 }
 
-.cat.selected{
-  background:linear-gradient(135deg,#4f247e,#7d3fc3);
-  border-color:#b87cff;
-  transform:translateY(-2px);
+.category.selected{
+    border-color:#ffd43b;
+    background:#332b58;
 }
 
-.cat b{
-  display:block;
-  font-size:19px;
-  margin-bottom:5px;
+.wheel-area{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
-
-.game-info{
-  text-align:center;
-  margin-bottom:10px;
-}
-
-.turn{color:#d4c5ed}
-
-.turn strong{color:#ffd84d}
 
 .wheel-wrap{
-  position:relative;
-  width:min(520px,90vw);
-  aspect-ratio:1;
-  margin:20px auto;
+    position:relative;
+    width:min(88vw,430px);
+    aspect-ratio:1;
+    margin:10px auto 20px;
 }
 
 .wheel{
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-  overflow:hidden;
-  border:8px solid #241b39;
-  box-shadow:0 0 0 2px #72569b,0 15px 45px rgba(0,0,0,.5);
-  transition:transform 4.2s cubic-bezier(.12,.7,.12,1);
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    position:relative;
+    overflow:hidden;
+    border:8px solid #fff;
+    box-shadow:
+        0 0 0 5px #6d4aff,
+        0 15px 50px rgba(0,0,0,.55);
+    transition:transform 4.3s cubic-bezier(.12,.8,.18,1);
 }
 
 .segment{
-  position:absolute;
-  width:50%;
-  height:50%;
-  left:50%;
-  top:50%;
-  transform-origin:0 0;
-}
-
-.segment::before{
-  content:"";
-  position:absolute;
-  left:0;
-  top:0;
-  width:0;
-  height:0;
-  border-top:1000px solid var(--c);
-  border-right:1000px solid transparent;
+    position:absolute;
+    width:50%;
+    height:50%;
+    left:50%;
+    top:50%;
+    transform-origin:0 0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
 .segment-name{
-  position:absolute;
-  z-index:2;
-  left:55px;
-  top:38px;
-  width:115px;
-  text-align:center;
-  font-weight:900;
-  font-size:clamp(13px,3vw,18px);
-  color:white;
-  text-shadow:0 2px 5px #000;
-  pointer-events:none;
+    position:absolute;
+    width:145px;
+    text-align:center;
+    font-size:17px;
+    font-weight:900;
+    color:white;
+    text-shadow:0 2px 5px #000;
+    white-space:nowrap;
+    transform:translate(-50%,-50%);
 }
 
 .pointer{
-  position:absolute;
-  z-index:10;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-100%);
-  width:0;
-  height:0;
-  border-left:18px solid transparent;
-  border-right:18px solid transparent;
-  border-bottom:48px solid #ffd84d;
-  filter:drop-shadow(0 3px 5px #000);
+    position:absolute;
+    z-index:10;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:0;
+    height:0;
+    border-left:18px solid transparent;
+    border-right:18px solid transparent;
+    border-top:35px solid #ffd43b;
+    filter:drop-shadow(0 3px 4px #000);
 }
 
-.center{
-  position:absolute;
-  z-index:11;
-  left:50%;
-  top:50%;
-  width:76px;
-  height:76px;
-  transform:translate(-50%,-50%);
-  border-radius:50%;
-  background:#161025;
-  border:5px solid #ffd84d;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  box-shadow:0 5px 20px rgba(0,0,0,.5);
+.center-dot{
+    position:absolute;
+    z-index:11;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:54px;
+    height:54px;
+    border-radius:50%;
+    background:#18142e;
+    border:4px solid #ffd43b;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
 }
 
-.challenge{
-  background:#171128;
-  border:1px solid #403653;
-  border-radius:20px;
-  padding:20px;
-  text-align:center;
-  margin-top:15px;
+.turn-name{
+    display:none;
+    background:linear-gradient(135deg,#6d4aff,#9b5cff);
+    padding:13px 20px;
+    border-radius:16px;
+    margin:8px auto 15px;
+    font-size:21px;
+    font-weight:900;
+    width:fit-content;
+    max-width:100%;
+    box-shadow:0 8px 25px rgba(109,74,255,.25);
+}
+
+.challenge-box{
+    display:none;
+    background:#17142d;
+    border:1px solid #393554;
+    border-radius:20px;
+    padding:20px;
+    margin-top:15px;
 }
 
 .challenge-title{
-  color:#b98aff;
-  font-size:14px;
-  font-weight:bold;
-  margin-bottom:8px;
+    color:#ffd43b;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:10px;
 }
 
 .challenge-text{
-  font-size:20px;
-  font-weight:800;
-  line-height:1.6;
+    font-size:22px;
+    line-height:1.6;
+    font-weight:bold;
 }
 
-.actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:15px;
+.challenge-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
 }
 
 .done{
-  background:#36c878;
-  color:#061b10;
+    flex:1;
+    background:#22c55e;
+    color:white;
 }
 
 .skip{
-  background:#5b536c;
-  color:white;
+    flex:1;
+    background:#ef4444;
+    color:white;
 }
 
-.score-list{
-  display:grid;
-  gap:10px;
-  margin:20px 0;
+.result-list{
+    display:grid;
+    gap:10px;
+    margin:20px 0;
 }
 
-.score{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:#171128;
-  border:1px solid #403653;
-  padding:15px;
-  border-radius:15px;
-}
-
-.score:first-child{
-  border-color:#ffd84d;
-  box-shadow:0 0 18px rgba(255,216,77,.12);
-}
-
-.rank{
-  color:#ffd84d;
-  font-weight:900;
+.result{
+    display:flex;
+    justify-content:space-between;
+    background:#211d3d;
+    padding:15px 18px;
+    border-radius:14px;
+    font-size:18px;
+    font-weight:bold;
 }
 
 .winner{
-  text-align:center;
-  padding:18px;
-  border-radius:20px;
-  background:linear-gradient(135deg,#392052,#1a1430);
-  margin-bottom:20px;
+    color:#ffd43b;
+    font-size:25px;
+    font-weight:900;
+    margin-bottom:20px;
 }
 
-.winner small{color:#c7bfdc}
-
-.winner strong{
-  display:block;
-  color:#ffd84d;
-  font-size:30px;
-  margin-top:5px;
-}
-
-@media(max-width:600px){
-  .card{
-    padding:20px 15px;
-    border-radius:22px;
-  }
-
-  .categories{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .segment-name{
-    left:42px;
-    top:27px;
-    width:85px;
-    font-size:12px;
-  }
-
-  .pointer{
-    border-left-width:14px;
-    border-right-width:14px;
-    border-bottom-width:38px;
-  }
-
-  .center{
-    width:65px;
-    height:65px;
-  }
+.small{
+    color:#aaa5c2;
+    font-size:14px;
+    margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<main class="app">
-<div class="card">
-
 <!-- الصفحة الأولى -->
-<section id="s1" class="screen active">
-
-  <h1>🎡 عجلة التحديات</h1>
-
-  <p class="sub">
-    لعبة جماعية سريعة وممتعة 🔥
-  </p>
-
-  <div class="creator">
-    إنشاء وتصميم عادل
-  </div>
-
-  <button class="main-btn" onclick="go(2)">
-    بدء اللعبة
-  </button>
-
+<section class="page active" id="s1">
+    <div class="card">
+        <h1>🎡 عجلة التحديات</h1>
+        <div class="subtitle">لعبة جماعية سريعة وممتعة 🔥</div>
+        <div class="creator">إنشاء وتصميم عادل</div>
+        <button class="start" onclick="go('s2')">بدء اللعبة</button>
+    </div>
 </section>
 
+<!-- أسماء اللاعبين -->
+<section class="page" id="s2">
+    <div class="card">
+        <h2>ضع الأسماء</h2>
 
-<!-- الأسماء -->
-<section id="s2" class="screen">
+        <div class="players" id="players"></div>
 
-  <h2>ضع الأسماء</h2>
+        <button class="add" onclick="addPlayer()">＋ إضافة لاعب</button>
 
-  <p class="sub">
-    أدخل أسماء اللاعبين
-  </p>
+        <div class="small">يمكنك إضافة حتى 12 لاعب</div>
 
-  <div id="names" class="names"></div>
-
-  <button class="add" onclick="addPlayer()">
-    ＋ إضافة لاعب
-  </button>
-
-  <button class="main-btn" onclick="saveNames()">
-    التالي
-  </button>
-
+        <button class="next" onclick="goCategories()">التالي</button>
+    </div>
 </section>
 
+<!-- اختيار التحديات -->
+<section class="page" id="s3">
+    <div class="card">
+        <h2>اختر نوع التحدي الي تبيه</h2>
 
-<!-- أنواع التحديات -->
-<section id="s3" class="screen">
+        <div class="category-grid">
+            <button class="category" data-cat="مضحكة 😂" onclick="toggleCat(this)">مضحكة 😂</button>
+            <button class="category" data-cat="ذكاء 🧠" onclick="toggleCat(this)">ذكاء 🧠</button>
+            <button class="category" data-cat="تمثيل 🎭" onclick="toggleCat(this)">تمثيل 🎭</button>
+            <button class="category" data-cat="سرعة ⚡️" onclick="toggleCat(this)">سرعة ⚡️</button>
+            <button class="category" data-cat="جريئة 😈" onclick="toggleCat(this)">جريئة 😈</button>
+            <button class="category" data-cat="تحديات 👥" onclick="toggleCat(this)">تحديات 👥</button>
+        </div>
 
-  <h2>اختر نوع التحدي الي تبيه</h2>
-
-  <p class="sub">
-    تقدر تختار أكثر من نوع
-  </p>
-
-  <div id="cats" class="categories"></div>
-
-  <button class="main-btn" onclick="startGame()">
-    ابدأ التحدي 🔥
-  </button>
-
+        <button class="next" onclick="startGame()">ابدأ 🎡</button>
+    </div>
 </section>
-
 
 <!-- اللعبة -->
-<section id="s4" class="screen">
+<section class="page" id="s4">
+    <div class="card">
+        <h2>🎡 عجلة التحديات</h2>
 
-  <div class="game-info">
-    <div class="turn">
-      دور اللاعب:
-      <strong id="turnName"></strong>
+        <div class="wheel-area">
+
+            <div class="wheel-wrap">
+                <div class="pointer"></div>
+                <div class="center-dot">🎯</div>
+                <div class="wheel" id="wheel"></div>
+            </div>
+
+            <button class="start" id="spinBtn" onclick="spinWheel()">
+                لف العجلة 🎡
+            </button>
+
+            <!-- اسم صاحب الدور -->
+            <div class="turn-name" id="turnName"></div>
+
+            <!-- التحدي -->
+            <div class="challenge-box" id="challengeBox">
+
+                <div class="challenge-title">
+                    🎯 التحدي
+                </div>
+
+                <div class="challenge-text" id="challengeText"></div>
+
+                <div class="challenge-buttons">
+                    <button class="done" onclick="finishChallenge()">
+                        تم ✅
+                    </button>
+
+                    <button class="skip" onclick="skipChallenge()">
+                        سكيب ⏭️
+                    </button>
+                </div>
+
+            </div>
+        </div>
     </div>
-  </div>
-
-  <div class="wheel-wrap">
-
-    <div id="wheel" class="wheel"></div>
-
-    <div class="pointer"></div>
-
-    <div class="center">
-      🎯
-    </div>
-
-  </div>
-
-  <button id="spin" class="main-btn" onclick="spin()">
-    لف العجلة 🎡
-  </button>
-
-  <div id="challengeBox" class="challenge" style="display:none">
-
-    <div class="challenge-title">
-      التحدي
-    </div>
-
-    <div id="challengeText" class="challenge-text"></div>
-
-    <div class="actions">
-
-      <button class="main-btn done" onclick="completeChallenge()">
-        تم ✅
-      </button>
-
-      <button class="main-btn skip" onclick="skipChallenge()">
-        سكيب ⏭️
-      </button>
-
-    </div>
-
-  </div>
-
 </section>
-
 
 <!-- النتائج -->
-<section id="s5" class="screen">
+<section class="page" id="s5">
+    <div class="card">
+        <h2>🏆 النتائج</h2>
 
-  <h2>🏆 النتائج</h2>
+        <div class="winner" id="winner"></div>
 
-  <div id="winner" class="winner"></div>
+        <div class="result-list" id="results"></div>
 
-  <div id="scores" class="score-list"></div>
-
-  <button class="main-btn" onclick="location.reload()">
-    لعبة جديدة 🔄
-  </button>
-
+        <button class="start" onclick="location.reload()">
+            لعب مرة ثانية 🔄
+        </button>
+    </div>
 </section>
-
-</div>
-</main>
-
 
 <script>
 
@@ -559,365 +468,291 @@ const data = {
 
 };
 
-let players=[];
-let scores=[];
-let selectedCats=[];
-let turn=0;
-let rot=0;
-let spinning=false;
+let playerInputs = [];
+let players = [];
+let selectedCategories = [];
+let scores = {};
+let wheelRotation = 0;
+let currentPlayerIndex = -1;
+let spinning = false;
 
-const colors=[
-"#7b35d1",
-"#e14b7b",
-"#1f9ed1",
-"#e5a82f",
-"#35b878",
-"#d83d3d",
-"#6946d9",
-"#d95d31",
-"#249b87",
-"#9b43c8",
-"#d49b26",
-"#2878c8"
+const colors = [
+"#ef4444",
+"#8b5cf6",
+"#06b6d4",
+"#22c55e",
+"#f59e0b",
+"#ec4899",
+"#3b82f6",
+"#14b8a6",
+"#f97316",
+"#6366f1",
+"#84cc16",
+"#e11d48"
 ];
 
-function go(n){
-
-document.querySelectorAll(".screen")
-.forEach(x=>x.classList.remove("active"));
-
-document.getElementById("s"+n)
-.classList.add("active");
-
-if(n===2)initNames();
-if(n===3)initCats();
-
+function go(id){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
-
-
-function initNames(){
-
-const box=document.getElementById("names");
-
-if(box.children.length)return;
-
-for(let i=0;i<4;i++){
-addPlayer();
-}
-
-}
-
 
 function addPlayer(){
 
-const box=document.getElementById("names");
+    if(playerInputs.length >= 12){
+        alert("وصلت للحد الأقصى 12 لاعب");
+        return;
+    }
 
-if(box.children.length>=12){
+    const row = document.createElement("div");
+    row.className = "player-row";
 
-alert("الحد الأقصى 12 لاعب");
+    const number = document.createElement("span");
+    number.textContent = (playerInputs.length + 1) + "-";
 
-return;
+    const input = document.createElement("input");
+    input.placeholder = "اسم اللاعب";
+
+    row.appendChild(number);
+    row.appendChild(input);
+
+    document.getElementById("players").appendChild(row);
+
+    playerInputs.push(input);
 }
 
-const i=box.children.length+1;
+addPlayer();
+addPlayer();
+addPlayer();
+addPlayer();
 
-const row=document.createElement("div");
+function goCategories(){
 
-row.className="name-row";
+    players = playerInputs
+        .map(input => input.value.trim())
+        .filter(name => name !== "");
 
-row.innerHTML=`
-<span>${i}-</span>
-<input type="text" placeholder="اسم اللاعب ${i}">
-`;
+    if(players.length < 2){
+        alert("لازم تضيف لاعبين على الأقل");
+        return;
+    }
 
-box.appendChild(row);
+    scores = {};
 
+    players.forEach(name => {
+        scores[name] = 0;
+    });
+
+    go("s3");
 }
 
+function toggleCat(button){
 
-function saveNames(){
+    button.classList.toggle("selected");
 
-players=[...document.querySelectorAll("#names input")]
-.map(x=>x.value.trim())
-.filter(Boolean);
+    const cat = button.dataset.cat;
 
-if(players.length<2){
-
-alert("أدخل اسم لاعبين على الأقل");
-
-return;
+    if(selectedCategories.includes(cat)){
+        selectedCategories = selectedCategories.filter(x => x !== cat);
+    }else{
+        selectedCategories.push(cat);
+    }
 }
-
-scores=players.map(()=>0);
-
-turn=0;
-
-go(3);
-
-}
-
-
-function initCats(){
-
-const box=document.getElementById("cats");
-
-if(box.children.length)return;
-
-Object.keys(data).forEach(cat=>{
-
-const button=document.createElement("button");
-
-button.className="cat";
-
-button.dataset.cat=cat;
-
-button.innerHTML=`
-<b>${cat}</b>
-<span>اختيار</span>
-`;
-
-button.onclick=()=>{
-
-button.classList.toggle("selected");
-
-selectedCats=[
-...document.querySelectorAll(".cat.selected")
-].map(x=>x.dataset.cat);
-
-};
-
-box.appendChild(button);
-
-});
-
-}
-
 
 function startGame(){
 
-if(!selectedCats.length){
+    if(selectedCategories.length === 0){
+        alert("اختر نوع تحدي واحد على الأقل");
+        return;
+    }
 
-alert("اختر نوع تحدي واحد على الأقل");
-
-return;
+    createWheel();
+    go("s4");
 }
 
-turn=0;
+function createWheel(){
 
-go(4);
+    const wheel = document.getElementById("wheel");
+    wheel.innerHTML = "";
 
-drawWheel();
+    const n = players.length;
+    const angle = 360 / n;
 
-showTurn();
+    const gradientParts = [];
 
+    players.forEach((name,i)=>{
+
+        const start = i * angle;
+        const end = (i + 1) * angle;
+
+        gradientParts.push(
+            `${colors[i % colors.length]} ${start}deg ${end}deg`
+        );
+
+        const segment = document.createElement("div");
+        segment.className = "segment";
+
+        segment.style.transform =
+            `rotate(${start}deg) skewY(${90-angle}deg)`;
+
+        const nameElement = document.createElement("div");
+        nameElement.className = "segment-name";
+        nameElement.textContent = name;
+
+        /*
+        نخلي الاسم أفقي ومستقيم
+        مهما كان مكانه داخل العجلة
+        */
+        nameElement.style.transform =
+            `translate(-50%,-50%) skewY(${-(90-angle)}deg) rotate(${-start}deg)`;
+
+        /*
+        وضع الاسم داخل القطاع
+        */
+        nameElement.style.left = "50%";
+        nameElement.style.top = "58%";
+
+        segment.appendChild(nameElement);
+        wheel.appendChild(segment);
+
+    });
+
+    wheel.style.background =
+        `conic-gradient(${gradientParts.join(",")})`;
 }
 
+function spinWheel(){
 
-function drawWheel(){
+    if(spinning) return;
 
-const wheel=document.getElementById("wheel");
+    spinning = true;
 
-wheel.innerHTML="";
+    document.getElementById("spinBtn").disabled = true;
+    document.getElementById("challengeBox").style.display = "none";
+    document.getElementById("turnName").style.display = "none";
 
-const n=players.length;
+    const n = players.length;
+    const selected = Math.floor(Math.random() * n);
 
-const angle=360/n;
+    /*
+    اللاعب الذي وقفت عليه العجلة
+    يصبح صاحب الدور فعليًا
+    */
+    currentPlayerIndex = selected;
 
-players.forEach((name,i)=>{
+    const angle = 360 / n;
 
-const segment=document.createElement("div");
+    const target = 360 - (
+        selected * angle + angle / 2
+    );
 
-segment.className="segment";
+    wheelRotation += 360 * 5 + target;
 
-segment.style.transform=
-`rotate(${i*angle}deg) skewY(${90-angle}deg)`;
+    const wheel = document.getElementById("wheel");
 
-segment.style.setProperty(
-"--c",
-colors[i%colors.length]
-);
+    wheel.style.transform =
+        `rotate(${wheelRotation}deg)`;
 
-const label=document.createElement("div");
+    setTimeout(()=>{
 
-label.className="segment-name";
+        showChallenge(selected);
 
-label.textContent=name;
+        spinning = false;
+        document.getElementById("spinBtn").disabled = false;
 
-label.style.transform=
-`skewY(${-(90-angle)}deg) rotate(${angle/2}deg)`;
-
-segment.appendChild(label);
-
-wheel.appendChild(segment);
-
-});
-
+    },4300);
 }
 
+function showChallenge(index){
 
-function showTurn(){
+    const player = players[index];
 
-document.getElementById("turnName")
-.textContent=players[turn];
+    /*
+    يظهر اسم اللاعب فوق التحدي
+    */
+    const turnName = document.getElementById("turnName");
 
-document.getElementById("challengeBox")
-.style.display="none";
+    turnName.textContent =
+        "🎯 الدور على: " + player;
 
-document.getElementById("spin")
-.disabled=false;
+    turnName.style.display = "block";
 
+    const category =
+        selectedCategories[
+            Math.floor(Math.random()*selectedCategories.length)
+        ];
+
+    const challenges = data[category];
+
+    const challenge =
+        challenges[
+            Math.floor(Math.random()*challenges.length)
+        ];
+
+    document.getElementById("challengeText").textContent =
+        challenge;
+
+    document.getElementById("challengeBox").style.display =
+        "block";
 }
 
+function finishChallenge(){
 
-function spin(){
+    if(currentPlayerIndex < 0) return;
 
-if(spinning)return;
+    const player = players[currentPlayerIndex];
 
-spinning=true;
+    scores[player]++;
 
-const button=document.getElementById("spin");
-
-button.disabled=true;
-
-document.getElementById("challengeBox")
-.style.display="none";
-
-const n=players.length;
-
-const selected=Math.floor(Math.random()*n);
-
-const angle=360/n;
-
-const target=
-360-(selected*angle+angle/2);
-
-const extra=360*5;
-
-rot+=extra+target;
-
-document.getElementById("wheel")
-.style.transform=`rotate(${rot}deg)`;
-
-setTimeout(()=>{
-
-spinning=false;
-
-document.getElementById("turnName")
-.textContent=players[selected];
-
-showChallenge(selected);
-
-},4300);
-
+    nextRound();
 }
-
-
-function showChallenge(playerIndex){
-
-const all=[];
-
-selectedCats.forEach(cat=>{
-
-data[cat].forEach(challenge=>{
-all.push(challenge);
-});
-
-});
-
-const challenge=
-all[Math.floor(Math.random()*all.length)];
-
-document.getElementById("challengeText")
-.textContent=challenge;
-
-document.getElementById("challengeBox")
-.style.display="block";
-
-document.getElementById("challengeBox")
-.scrollIntoView({
-behavior:"smooth",
-block:"center"
-});
-
-window.currentPlayer=playerIndex;
-
-}
-
-
-function completeChallenge(){
-
-scores[window.currentPlayer]++;
-
-nextTurn();
-
-}
-
 
 function skipChallenge(){
 
-nextTurn();
-
+    nextRound();
 }
 
+function nextRound(){
 
-function nextTurn(){
+    document.getElementById("challengeBox").style.display =
+        "none";
 
-turn++;
+    document.getElementById("turnName").style.display =
+        "none";
 
-if(turn>=players.length){
-
-showResults();
-
-return;
+    /*
+    نرجع للعجلة عشان نختار لاعب جديد
+    */
+    currentPlayerIndex = -1;
 }
 
-showTurn();
+function endGame(){
 
-}
+    const sorted = [...players].sort(
+        (a,b)=>scores[b]-scores[a]
+    );
 
+    const winner = sorted[0];
 
-function showResults(){
+    document.getElementById("winner").textContent =
+        "🏆 الفائز: " + winner;
 
-go(5);
+    const results = document.getElementById("results");
 
-const results=players
-.map((name,i)=>({
-name:name,
-score:scores[i]
-}))
-.sort((a,b)=>b.score-a.score);
+    results.innerHTML = "";
 
-const winner=document.getElementById("winner");
+    sorted.forEach((player,index)=>{
 
-winner.innerHTML=`
-<small>الفائز 🏆</small>
-<strong>${results[0].name}</strong>
-<div>${results[0].score} نقطة</div>
-`;
+        const div = document.createElement("div");
+        div.className = "result";
 
-const box=document.getElementById("scores");
+        div.innerHTML =
+            `<span>${index+1}. ${player}</span>
+             <span>${scores[player]} نقطة</span>`;
 
-box.innerHTML="";
+        results.appendChild(div);
+    });
 
-results.forEach((p,i)=>{
-
-const row=document.createElement("div");
-
-row.className="score";
-
-row.innerHTML=`
-<span>
-<span class="rank">#${i+1}</span>
-&nbsp; ${p.name}
-</span>
-
-<strong>${p.score} نقطة</strong>
-`;
-
-box.appendChild(row);
-
-});
-
+    go("s5");
 }
 
 </script>
