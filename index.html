@@ -1,40 +1,926 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>عجلة التحديات</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:radial-gradient(circle at top,#241447,#080812 60%);color:#fff;min-height:100vh}.app{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}.card{width:min(720px,100%);background:rgba(17,16,31,.9);border:1px solid #3d315c;border-radius:28px;padding:26px;box-shadow:0 20px 60px #0008}.screen{display:none}.screen.active{display:block;animation:in .3s ease}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}h1,h2{margin:0 0 12px;text-align:center}.sub{text-align:center;color:#bbb6c9;margin:0 0 24px}.btn{border:0;border-radius:16px;padding:14px 18px;font-size:17px;font-weight:800;cursor:pointer;background:#7c3aed;color:white;box-shadow:0 8px 20px #7c3aed44}.btn.gold{background:#f4b942;color:#17120a}.btn.secondary{background:#29253b}.btn:disabled{opacity:.5;cursor:not-allowed}.center{text-align:center}.big{font-size:24px;padding:18px 30px}.inputs{display:grid;gap:10px}.row{display:flex;gap:8px}.row input{flex:1}.input{width:100%;padding:14px;border-radius:14px;border:1px solid #453b5e;background:#0f0e18;color:white;font-size:16px;outline:none}.input:focus{border-color:#9b6cff}.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:18px 0}.chip{padding:15px;border:1px solid #46385f;border-radius:16px;background:#171426;color:white;font-size:16px;font-weight:700;cursor:pointer}.chip.selected{border-color:#b184ff;background:#321d59;box-shadow:0 0 0 2px #7c3aed55}.actions{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}.wheel-wrap{position:relative;width:min(430px,88vw);aspect-ratio:1;margin:10px auto 18px}.wheel{position:absolute;inset:0;border-radius:50%;border:8px solid #efe7ff;overflow:hidden;transition:transform 4s cubic-bezier(.12,.72,.12,1);background:conic-gradient(#ff5b7f 0deg 60deg,#ffb84d 60deg 120deg,#48d597 120deg 180deg,#4db6ff 180deg 240deg,#a778ff 240deg 300deg,#ff72d2 300deg 360deg);box-shadow:0 0 35px #0008}.wheel-names{position:absolute;inset:0;transform:rotate(0deg);transition:transform 4s cubic-bezier(.12,.72,.12,1);pointer-events:none}.wn{position:absolute;left:50%;top:50%;width:42%;text-align:center;font-weight:900;font-size:clamp(12px,3.2vw,17px);transform-origin:0 0;white-space:nowrap;text-shadow:0 2px 5px #000}.pointer{position:absolute;left:50%;top:50%;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:48px solid #fff;transform:translate(-50%,-95%);filter:drop-shadow(0 3px 5px #000);z-index:3}.hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:62px;height:62px;border-radius:50%;background:#151321;border:5px solid #fff;z-index:4;display:grid;place-items:center;font-size:25px}.challenge{background:#171426;border:1px solid #46385f;border-radius:20px;padding:18px;text-align:center;font-size:20px;font-weight:800;min-height:90px;display:grid;place-items:center}.scoreline{text-align:center;color:#c8c1d7;margin:8px 0}.results{display:grid;gap:10px;margin:20px 0}.result{display:flex;justify-content:space-between;align-items:center;background:#171426;border:1px solid #3d3155;padding:14px 16px;border-radius:15px}.winner{border-color:#f4b942;background:#2b2211}.small{font-size:13px;color:#aaa2b9}.hide{display:none!important}@media(max-width:520px){.card{padding:20px}.chips{grid-template-columns:1fr 1fr}.wheel-wrap{width:min(350px,88vw)}}
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+  background:linear-gradient(135deg,#080611,#17102d,#080611);
+  color:#fff;
+}
+
+button,input{font:inherit}
+
+.app{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.card{
+  width:min(900px,100%);
+  background:rgba(18,14,35,.95);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:28px;
+  box-shadow:0 20px 70px rgba(0,0,0,.45);
+}
+
+.screen{
+  display:none;
+  animation:show .35s ease;
+}
+
+.screen.active{display:block}
+
+@keyframes show{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+h1,h2{text-align:center}
+
+h1{
+  font-size:clamp(32px,7vw,58px);
+  margin:5px 0 8px;
+}
+
+h2{
+  font-size:clamp(25px,5vw,38px);
+  margin:5px 0 12px;
+}
+
+.sub{
+  text-align:center;
+  color:#c7bfdc;
+  margin-bottom:25px;
+}
+
+.creator{
+  text-align:center;
+  color:#a879e8;
+  font-size:14px;
+  font-weight:700;
+  margin:0 0 28px;
+}
+
+.main-btn{
+  width:100%;
+  border:0;
+  border-radius:18px;
+  padding:17px;
+  background:linear-gradient(135deg,#ffd84d,#ffb300);
+  color:#17110b;
+  font-weight:900;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.main-btn:active{transform:scale(.98)}
+
+.names{
+  display:grid;
+  gap:12px;
+  margin-bottom:15px;
+}
+
+.name-row{
+  display:flex;
+  gap:8px;
+}
+
+.name-row span{
+  width:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#cfc5e8;
+  font-weight:bold;
+}
+
+input{
+  width:100%;
+  border:1px solid #453a5d;
+  outline:none;
+  background:#100c20;
+  color:white;
+  border-radius:13px;
+  padding:14px;
+}
+
+input:focus{border-color:#9b5cff}
+
+.add{
+  width:100%;
+  border:1px dashed #7654a5;
+  background:#1d1630;
+  color:#d9c9f7;
+  border-radius:14px;
+  padding:13px;
+  cursor:pointer;
+  margin-bottom:18px;
+}
+
+.categories{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.cat{
+  border:1px solid #403653;
+  background:#171128;
+  color:white;
+  border-radius:17px;
+  padding:18px 10px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.cat.selected{
+  background:linear-gradient(135deg,#4f247e,#7d3fc3);
+  border-color:#b87cff;
+  transform:translateY(-2px);
+}
+
+.cat b{
+  display:block;
+  font-size:19px;
+  margin-bottom:5px;
+}
+
+.game-info{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.turn{color:#d4c5ed}
+
+.turn strong{color:#ffd84d}
+
+.wheel-wrap{
+  position:relative;
+  width:min(520px,90vw);
+  aspect-ratio:1;
+  margin:20px auto;
+}
+
+.wheel{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  overflow:hidden;
+  border:8px solid #241b39;
+  box-shadow:0 0 0 2px #72569b,0 15px 45px rgba(0,0,0,.5);
+  transition:transform 4.2s cubic-bezier(.12,.7,.12,1);
+}
+
+.segment{
+  position:absolute;
+  width:50%;
+  height:50%;
+  left:50%;
+  top:50%;
+  transform-origin:0 0;
+}
+
+.segment::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:0;
+  height:0;
+  border-top:1000px solid var(--c);
+  border-right:1000px solid transparent;
+}
+
+.segment-name{
+  position:absolute;
+  z-index:2;
+  left:55px;
+  top:38px;
+  width:115px;
+  text-align:center;
+  font-weight:900;
+  font-size:clamp(13px,3vw,18px);
+  color:white;
+  text-shadow:0 2px 5px #000;
+  pointer-events:none;
+}
+
+.pointer{
+  position:absolute;
+  z-index:10;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-100%);
+  width:0;
+  height:0;
+  border-left:18px solid transparent;
+  border-right:18px solid transparent;
+  border-bottom:48px solid #ffd84d;
+  filter:drop-shadow(0 3px 5px #000);
+}
+
+.center{
+  position:absolute;
+  z-index:11;
+  left:50%;
+  top:50%;
+  width:76px;
+  height:76px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:#161025;
+  border:5px solid #ffd84d;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  box-shadow:0 5px 20px rgba(0,0,0,.5);
+}
+
+.challenge{
+  background:#171128;
+  border:1px solid #403653;
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+  margin-top:15px;
+}
+
+.challenge-title{
+  color:#b98aff;
+  font-size:14px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.challenge-text{
+  font-size:20px;
+  font-weight:800;
+  line-height:1.6;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:15px;
+}
+
+.done{
+  background:#36c878;
+  color:#061b10;
+}
+
+.skip{
+  background:#5b536c;
+  color:white;
+}
+
+.score-list{
+  display:grid;
+  gap:10px;
+  margin:20px 0;
+}
+
+.score{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#171128;
+  border:1px solid #403653;
+  padding:15px;
+  border-radius:15px;
+}
+
+.score:first-child{
+  border-color:#ffd84d;
+  box-shadow:0 0 18px rgba(255,216,77,.12);
+}
+
+.rank{
+  color:#ffd84d;
+  font-weight:900;
+}
+
+.winner{
+  text-align:center;
+  padding:18px;
+  border-radius:20px;
+  background:linear-gradient(135deg,#392052,#1a1430);
+  margin-bottom:20px;
+}
+
+.winner small{color:#c7bfdc}
+
+.winner strong{
+  display:block;
+  color:#ffd84d;
+  font-size:30px;
+  margin-top:5px;
+}
+
+@media(max-width:600px){
+  .card{
+    padding:20px 15px;
+    border-radius:22px;
+  }
+
+  .categories{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .segment-name{
+    left:42px;
+    top:27px;
+    width:85px;
+    font-size:12px;
+  }
+
+  .pointer{
+    border-left-width:14px;
+    border-right-width:14px;
+    border-bottom-width:38px;
+  }
+
+  .center{
+    width:65px;
+    height:65px;
+  }
+}
 </style>
 </head>
-<body><main class="app"><section class="card">
-<div id="s1" class="screen active"><h1>🎯 عجلة التحديات</h1><p class="sub">لعبة جماعية سريعة وممتعة</p><div class="center"><button class="btn gold big" onclick="go(2)">بدء اللعبة</button></div></div>
-<div id="s2" class="screen"><h2>ضع الاسماء</h2><p class="sub">اكتب أسماء اللاعبين</p><div id="names" class="inputs"></div><div class="actions"><button class="btn secondary" onclick="addPlayer()">＋ إضافة لاعب</button><button class="btn" onclick="saveNames()">التالي</button></div></div>
-<div id="s3" class="screen"><h2>اختر نوع التحدي الي تبيه</h2><p class="sub">تقدر تختار أكثر من نوع</p><div id="cats" class="chips"></div><div class="actions"><button class="btn secondary" onclick="go(2)">رجوع</button><button class="btn" onclick="startGame()">ابدأ اللعب</button></div></div>
-<div id="s4" class="screen"><h2>🎡 عجلة التحديات</h2><div class="scoreline">دور: <b id="turnName"></b></div><div class="wheel-wrap"><div id="wheel" class="wheel"></div><div id="wheelNames" class="wheel-names"></div><div class="pointer"></div><div class="hub">➤</div></div><div class="center"><button id="spin" class="btn gold big" onclick="spin()">لف العجلة</button></div><div id="challengeBox" class="challenge hide"></div><div id="challengeActions" class="actions hide"><button class="btn" onclick="doneChallenge()">تم ✅</button><button class="btn secondary" onclick="skipChallenge()">سكيب ⏭️</button></div></div>
-<div id="s5" class="screen"><h2>🏆 النتائج</h2><p class="sub">النتائج النهائية</p><div id="results" class="results"></div><div class="center"><button class="btn gold" onclick="location.reload()">لعبة جديدة</button></div></div>
-</section></main>
+
+<body>
+
+<main class="app">
+<div class="card">
+
+<!-- الصفحة الأولى -->
+<section id="s1" class="screen active">
+
+  <h1>🎡 عجلة التحديات</h1>
+
+  <p class="sub">
+    لعبة جماعية سريعة وممتعة 🔥
+  </p>
+
+  <div class="creator">
+    إنشاء وتصميم عادل
+  </div>
+
+  <button class="main-btn" onclick="go(2)">
+    بدء اللعبة
+  </button>
+
+</section>
+
+
+<!-- الأسماء -->
+<section id="s2" class="screen">
+
+  <h2>ضع الأسماء</h2>
+
+  <p class="sub">
+    أدخل أسماء اللاعبين
+  </p>
+
+  <div id="names" class="names"></div>
+
+  <button class="add" onclick="addPlayer()">
+    ＋ إضافة لاعب
+  </button>
+
+  <button class="main-btn" onclick="saveNames()">
+    التالي
+  </button>
+
+</section>
+
+
+<!-- أنواع التحديات -->
+<section id="s3" class="screen">
+
+  <h2>اختر نوع التحدي الي تبيه</h2>
+
+  <p class="sub">
+    تقدر تختار أكثر من نوع
+  </p>
+
+  <div id="cats" class="categories"></div>
+
+  <button class="main-btn" onclick="startGame()">
+    ابدأ التحدي 🔥
+  </button>
+
+</section>
+
+
+<!-- اللعبة -->
+<section id="s4" class="screen">
+
+  <div class="game-info">
+    <div class="turn">
+      دور اللاعب:
+      <strong id="turnName"></strong>
+    </div>
+  </div>
+
+  <div class="wheel-wrap">
+
+    <div id="wheel" class="wheel"></div>
+
+    <div class="pointer"></div>
+
+    <div class="center">
+      🎯
+    </div>
+
+  </div>
+
+  <button id="spin" class="main-btn" onclick="spin()">
+    لف العجلة 🎡
+  </button>
+
+  <div id="challengeBox" class="challenge" style="display:none">
+
+    <div class="challenge-title">
+      التحدي
+    </div>
+
+    <div id="challengeText" class="challenge-text"></div>
+
+    <div class="actions">
+
+      <button class="main-btn done" onclick="completeChallenge()">
+        تم ✅
+      </button>
+
+      <button class="main-btn skip" onclick="skipChallenge()">
+        سكيب ⏭️
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- النتائج -->
+<section id="s5" class="screen">
+
+  <h2>🏆 النتائج</h2>
+
+  <div id="winner" class="winner"></div>
+
+  <div id="scores" class="score-list"></div>
+
+  <button class="main-btn" onclick="location.reload()">
+    لعبة جديدة 🔄
+  </button>
+
+</section>
+
+</div>
+</main>
+
+
 <script>
-const data={
-"مضحكة 😂":["قل جملة بصوت روبوت لمدة 10 ثواني 🤖","مثّل أنك مذيع أخبار وتقول خبرًا مضحكًا 📺","قل نكتة بدون ما تضحك 😂","اعمل صوت حيوان وعلى الباقين تخمينه 🐯","تكلم كأنك طفل لمدة 15 ثانية 👶"],
-"ذكاء 🧠":["اذكر 5 أشياء تبدأ بحرف م خلال 5 ثواني 🧠","اذكر 5 مدن بسرعة 🌍","قل 7 ألوان بسرعة 🎨","قل 3 أمثال شعبية بسرعة","اذكر 4 أشياء موجودة في المطبخ خلال 5 ثواني 🍳"],
-"تمثيل 🎭":["مثّل شخصية كرتونية وعلى الباقين تخمينها 🎬","مثّل أنك فزت بمليون ريال 💰","مثّل أنك بائع وتحاول بيع شيء عشوائي 🛒","مثّل مشهد تأخرك عن موعد مهم ⏰","مثّل أنك لاعب مشهور والكل يحاول يعرف من أنت ⭐"],
-"سرعة ⚡️":["قل 5 أكلات في 5 ثواني 🍕","قل الحروف من أ إلى ي بأسرع ما تستطيع 🔤","قل كلمة صعبة 5 مرات بسرعة 😅","اذكر 5 أسماء خلال 5 ثواني ⚡","اذكر 5 أشياء لونها أبيض بسرعة 🤍"],
-"جريئة 😈":["قل جملة وكأنك شخصية شريرة 😈","تكلم بلهجة مختلفة لمدة 20 ثانية 🗣️","قل اسمك وكأنك في فيلم أكشن 🎬","اعمل تمثالًا ثابتًا لمدة 15 ثانية 🗿","قل أكثر كلمة تستخدمها في يومك بصوت درامي 🎭"],
-"تحديات 👥":["اختر لاعبًا وقل له 3 أشياء إيجابية عنه ⭐","صف لاعبًا بدون ذكر اسمه وعلى الباقين تخمينه 👀","اختر لاعبًا ليعطيك كلمة واستخدمها في جملة مضحكة 🎯","حاول ألا تضحك لمدة 10 ثواني 😂","اختر لاعبًا وقل له تحديًا بسيطًا وآمنًا لمدة 10 ثواني 👥"]};
-let players=[],scores=[],selectedCats=[],turn=0,rot=0,spinning=false,currentChallenge='';
-function go(n){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById('s'+n).classList.add('active');if(n===2)initNames();if(n===3)initCats()}
-function initNames(){if(document.getElementById('names').children.length)return;for(let i=0;i<4;i++)addPlayer();}
-function addPlayer(){if(document.getElementById('names').children.length>=12)return;let i=document.getElementById('names').children.length+1;let d=document.createElement('div');d.className='row';d.innerHTML=`<input class="input" maxlength="18" placeholder="${i}- اسم اللاعب">`;document.getElementById('names').appendChild(d)}
-function saveNames(){players=[...document.querySelectorAll('#names input')].map(x=>x.value.trim()).filter(Boolean);if(players.length<2){alert('اكتب اسم لاعبين على الأقل');return}scores=players.map(()=>0);go(3)}
-function initCats(){let box=document.getElementById('cats');box.innerHTML='';Object.keys(data).forEach(c=>{let b=document.createElement('button');b.className='chip';b.textContent=c;b.onclick=()=>{b.classList.toggle('selected');selectedCats=[...box.querySelectorAll('.selected')].map(x=>x.textContent)};box.appendChild(b)})}
-function startGame(){if(!selectedCats.length){alert('اختر نوع تحدي واحد على الأقل');return}turn=0;rot=0;drawWheel();showTurn();go(4)}
-function drawWheel(){let wn=document.getElementById('wheelNames');wn.innerHTML='';let n=players.length;let step=360/n;players.forEach((p,i)=>{let e=document.createElement('div');e.className='wn';e.textContent=p;e.style.transform=`rotate(${i*step}deg) translate(0,-${Math.min(160,Math.max(95, (window.innerWidth*.38)))}px) rotate(${-i*step}deg) translateX(-50%)`;wn.appendChild(e)});document.getElementById('wheel').style.background=`conic-gradient(${players.map((_,i)=>{let colors=['#ff5b7f','#ffb84d','#48d597','#4db6ff','#a778ff','#ff72d2','#64d9ff','#ff7b54'];return colors[i%colors.length]+' '+(i*step)+'deg '+((i+1)*step)+'deg'}).join(',')})`}
-function showTurn(){document.getElementById('turnName').textContent=players[turn];document.getElementById('challengeBox').classList.add('hide');document.getElementById('challengeActions').classList.add('hide');document.getElementById('spin').disabled=false}
-function spin(){if(spinning)return;spinning=true;document.getElementById('spin').disabled=true;let n=players.length;let idx=Math.floor(Math.random()*n);let step=360/n;let target=360-(idx*step+step/2);rot+=1440+((target-rot)%360+360)%360;document.getElementById('wheel').style.transform=`rotate(${rot}deg)`;document.getElementById('wheelNames').style.transform=`rotate(${rot}deg)`;setTimeout(()=>{currentChallenge=randomChallenge();document.getElementById('challengeBox').textContent=currentChallenge;document.getElementById('challengeBox').classList.remove('hide');document.getElementById('challengeActions').classList.remove('hide');spinning=false},4100)}
-function randomChallenge(){let pool=[];selectedCats.forEach(c=>pool.push(...data[c]));return pool[Math.floor(Math.random()*pool.length)]}
-function finishRound(gotPoint){if(gotPoint)scores[turn]++;turn++;if(turn>=players.length){showResults();go(5)}else showTurn()}
-function doneChallenge(){finishRound(true)}function skipChallenge(){finishRound(false)}
-function showResults(){let arr=players.map((p,i)=>({p,s:scores[i]})).sort((a,b)=>b.s-a.s);document.getElementById('results').innerHTML=arr.map((x,i)=>`<div class="result ${i===0?'winner':''}"><span>${i===0?'🏆 ':''}${i+1}. ${x.p}</span><b>${x.s} نقطة</b></div>`).join('')}
-window.addEventListener('resize',()=>{if(players.length)drawWheel()});
-</script></body></html>
+
+const data = {
+
+"مضحكة 😂":[
+"قل جملة بصوت روبوت لمدة 10 ثواني 🤖",
+"مثّل أنك مذيع أخبار وتقول خبرًا مضحكًا 📺",
+"قل نكتة بدون ما تضحك 😂",
+"اعمل صوت حيوان وعلى الباقين تخمينه 🐯",
+"تكلم كأنك طفل لمدة 15 ثانية 🧒",
+"قل جملة عادية بطريقة درامية جدًا 🎭"
+],
+
+"ذكاء 🧠":[
+"اذكر 5 أشياء تبدأ بحرف م خلال 5 ثواني 🧠",
+"اذكر 5 مدن بسرعة 🌍",
+"قل 7 ألوان بسرعة 🎨",
+"قل 3 أمثال شعبية بسرعة",
+"اذكر 4 أشياء موجودة في المطبخ خلال 5 ثواني 🍳",
+"اذكر 5 حيوانات تبدأ بحرف أ 🐯"
+],
+
+"تمثيل 🎭":[
+"مثّل شخصية كرتونية وعلى الباقين تخمينها 🎬",
+"مثّل أنك فزت بمليون ريال 💰",
+"مثّل أنك بائع وتحاول بيع شيء عشوائي 🛒",
+"مثّل مشهد تأخرك عن موعد مهم ⏰",
+"مثّل أنك لاعب مشهور والكل يحاول يعرف من أنت ⭐",
+"مثّل أنك مذيع في مباراة نهائية 🎤"
+],
+
+"سرعة ⚡️":[
+"قل 5 أكلات في 5 ثواني 🍕",
+"قل 5 أسماء خلال 5 ثواني ⚡",
+"قل كلمة صعبة 5 مرات بسرعة 😅",
+"اذكر 5 أشياء لونها أبيض بسرعة ⚪",
+"اذكر 5 أشياء تستخدمها يوميًا خلال 5 ثواني",
+"قل أسماء 5 دول بأسرع ما تستطيع 🌍"
+],
+
+"جريئة 😈":[
+"قل جملة وكأنك شخصية شريرة 😈",
+"تكلم بلهجة مختلفة لمدة 20 ثانية 🗣️",
+"قل اسمك وكأنك في فيلم أكشن 🎬",
+"اعمل تمثالًا ثابتًا لمدة 15 ثانية 🗿",
+"قل جملة عادية بصوت غامض جدًا 👀",
+"تكلم لمدة 10 ثواني بدون استخدام كلمة نعم أو لا"
+],
+
+"تحديات 👥":[
+"اختر لاعبًا وقل له 3 أشياء إيجابية عنه ⭐",
+"صف لاعبًا بدون ذكر اسمه وعلى الباقين تخمينه 👀",
+"اختر لاعبًا ليعطيك كلمة واستخدمها في جملة مضحكة 🎯",
+"حاول ألا تضحك لمدة 10 ثواني 😂",
+"اختر لاعبًا وقل له تحديًا بسيطًا وآمنًا لمدة 10 ثواني",
+"اختر لاعبًا وقل له موقفًا مضحكًا حصل لك"
+]
+
+};
+
+let players=[];
+let scores=[];
+let selectedCats=[];
+let turn=0;
+let rot=0;
+let spinning=false;
+
+const colors=[
+"#7b35d1",
+"#e14b7b",
+"#1f9ed1",
+"#e5a82f",
+"#35b878",
+"#d83d3d",
+"#6946d9",
+"#d95d31",
+"#249b87",
+"#9b43c8",
+"#d49b26",
+"#2878c8"
+];
+
+function go(n){
+
+document.querySelectorAll(".screen")
+.forEach(x=>x.classList.remove("active"));
+
+document.getElementById("s"+n)
+.classList.add("active");
+
+if(n===2)initNames();
+if(n===3)initCats();
+
+}
+
+
+function initNames(){
+
+const box=document.getElementById("names");
+
+if(box.children.length)return;
+
+for(let i=0;i<4;i++){
+addPlayer();
+}
+
+}
+
+
+function addPlayer(){
+
+const box=document.getElementById("names");
+
+if(box.children.length>=12){
+
+alert("الحد الأقصى 12 لاعب");
+
+return;
+}
+
+const i=box.children.length+1;
+
+const row=document.createElement("div");
+
+row.className="name-row";
+
+row.innerHTML=`
+<span>${i}-</span>
+<input type="text" placeholder="اسم اللاعب ${i}">
+`;
+
+box.appendChild(row);
+
+}
+
+
+function saveNames(){
+
+players=[...document.querySelectorAll("#names input")]
+.map(x=>x.value.trim())
+.filter(Boolean);
+
+if(players.length<2){
+
+alert("أدخل اسم لاعبين على الأقل");
+
+return;
+}
+
+scores=players.map(()=>0);
+
+turn=0;
+
+go(3);
+
+}
+
+
+function initCats(){
+
+const box=document.getElementById("cats");
+
+if(box.children.length)return;
+
+Object.keys(data).forEach(cat=>{
+
+const button=document.createElement("button");
+
+button.className="cat";
+
+button.dataset.cat=cat;
+
+button.innerHTML=`
+<b>${cat}</b>
+<span>اختيار</span>
+`;
+
+button.onclick=()=>{
+
+button.classList.toggle("selected");
+
+selectedCats=[
+...document.querySelectorAll(".cat.selected")
+].map(x=>x.dataset.cat);
+
+};
+
+box.appendChild(button);
+
+});
+
+}
+
+
+function startGame(){
+
+if(!selectedCats.length){
+
+alert("اختر نوع تحدي واحد على الأقل");
+
+return;
+}
+
+turn=0;
+
+go(4);
+
+drawWheel();
+
+showTurn();
+
+}
+
+
+function drawWheel(){
+
+const wheel=document.getElementById("wheel");
+
+wheel.innerHTML="";
+
+const n=players.length;
+
+const angle=360/n;
+
+players.forEach((name,i)=>{
+
+const segment=document.createElement("div");
+
+segment.className="segment";
+
+segment.style.transform=
+`rotate(${i*angle}deg) skewY(${90-angle}deg)`;
+
+segment.style.setProperty(
+"--c",
+colors[i%colors.length]
+);
+
+const label=document.createElement("div");
+
+label.className="segment-name";
+
+label.textContent=name;
+
+label.style.transform=
+`skewY(${-(90-angle)}deg) rotate(${angle/2}deg)`;
+
+segment.appendChild(label);
+
+wheel.appendChild(segment);
+
+});
+
+}
+
+
+function showTurn(){
+
+document.getElementById("turnName")
+.textContent=players[turn];
+
+document.getElementById("challengeBox")
+.style.display="none";
+
+document.getElementById("spin")
+.disabled=false;
+
+}
+
+
+function spin(){
+
+if(spinning)return;
+
+spinning=true;
+
+const button=document.getElementById("spin");
+
+button.disabled=true;
+
+document.getElementById("challengeBox")
+.style.display="none";
+
+const n=players.length;
+
+const selected=Math.floor(Math.random()*n);
+
+const angle=360/n;
+
+const target=
+360-(selected*angle+angle/2);
+
+const extra=360*5;
+
+rot+=extra+target;
+
+document.getElementById("wheel")
+.style.transform=`rotate(${rot}deg)`;
+
+setTimeout(()=>{
+
+spinning=false;
+
+document.getElementById("turnName")
+.textContent=players[selected];
+
+showChallenge(selected);
+
+},4300);
+
+}
+
+
+function showChallenge(playerIndex){
+
+const all=[];
+
+selectedCats.forEach(cat=>{
+
+data[cat].forEach(challenge=>{
+all.push(challenge);
+});
+
+});
+
+const challenge=
+all[Math.floor(Math.random()*all.length)];
+
+document.getElementById("challengeText")
+.textContent=challenge;
+
+document.getElementById("challengeBox")
+.style.display="block";
+
+document.getElementById("challengeBox")
+.scrollIntoView({
+behavior:"smooth",
+block:"center"
+});
+
+window.currentPlayer=playerIndex;
+
+}
+
+
+function completeChallenge(){
+
+scores[window.currentPlayer]++;
+
+nextTurn();
+
+}
+
+
+function skipChallenge(){
+
+nextTurn();
+
+}
+
+
+function nextTurn(){
+
+turn++;
+
+if(turn>=players.length){
+
+showResults();
+
+return;
+}
+
+showTurn();
+
+}
+
+
+function showResults(){
+
+go(5);
+
+const results=players
+.map((name,i)=>({
+name:name,
+score:scores[i]
+}))
+.sort((a,b)=>b.score-a.score);
+
+const winner=document.getElementById("winner");
+
+winner.innerHTML=`
+<small>الفائز 🏆</small>
+<strong>${results[0].name}</strong>
+<div>${results[0].score} نقطة</div>
+`;
+
+const box=document.getElementById("scores");
+
+box.innerHTML="";
+
+results.forEach((p,i)=>{
+
+const row=document.createElement("div");
+
+row.className="score";
+
+row.innerHTML=`
+<span>
+<span class="rank">#${i+1}</span>
+&nbsp; ${p.name}
+</span>
+
+<strong>${p.score} نقطة</strong>
+`;
+
+box.appendChild(row);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
