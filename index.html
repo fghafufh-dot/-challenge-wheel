@@ -1,616 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🎡 عجلة التحديات</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,Tahoma,sans-serif;
+ background:linear-gradient(145deg,#080812,#15102b,#090914);
+ color:white;
+ min-height:100vh;
+ text-align:center;
+}
+.screen{
+ display:none;
+ min-height:100vh;
+ padding:35px 18px;
+ align-items:center;
+ justify-content:center;
+ flex-direction:column;
+}
+.screen.active{display:flex}
+.card{
+ width:min(620px,100%);
+ background:rgba(25,22,48,.92);
+ border:1px solid rgba(255,255,255,.1);
+ border-radius:25px;
+ padding:28px 20px;
+ box-shadow:0 15px 50px rgba(0,0,0,.4);
+}
+h1{font-size:38px;margin:10px 0}
+h2{font-size:28px}
+p{color:#c9c5d9}
+button{
+ border:0;
+ border-radius:15px;
+ padding:15px 22px;
+ font-size:18px;
+ font-weight:bold;
+ cursor:pointer;
+ color:white;
+ background:#6c3cff;
+ margin:7px;
+}
+button:hover{filter:brightness(1.12)}
+.primary{background:#ffd21f;color:#17120a}
+.danger{background:#e53935}
+.success{background:#21c77a}
+.skip{background:#4b4b5e}
+input{
+ width:100%;
+ padding:16px;
+ border-radius:14px;
+ border:1px solid #444;
+ background:#11101d;
+ color:white;
+ font-size:18px;
+ outline:none;
+ margin:7px 0;
+}
+.playerRow{
+ display:flex;
+ gap:7px;
+ margin-bottom:8px;
+}
+.playerRow input{margin:0}
+.playerRow button{
+ margin:0;
+ padding:10px 15px;
+}
+.playersList{
+ display:grid;
+ gap:8px;
+ margin:15px 0;
+}
+.playerItem{
+ background:#17152a;
+ padding:12px;
+ border-radius:12px;
+}
+.categories{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:12px;
+ margin:20px 0;
+}
+.cat{
+ background:#19172c;
+ border:2px solid #37324e;
+ padding:18px 10px;
+ border-radius:17px;
+ cursor:pointer;
+ font-size:17px;
+ font-weight:bold;
+}
+.cat.selected{
+ border-color:#ffd21f;
+ background:#302a10;
+}
+.wheelWrap{
+ position:relative;
+ width:min(88vw,470px);
+ aspect-ratio:1;
+ margin:15px auto 25px;
+}
+#wheel{
+ width:100%;
+ height:100%;
+ border-radius:50%;
+ border:8px solid #fff;
+ box-shadow:0 0 35px rgba(108,60,255,.45);
+ transition:transform 4s cubic-bezier(.12,.7,.18,1);
+}
+.pointer{
+ position:absolute;
+ top:-18px;
+ left:50%;
+ transform:translateX(-50%);
+ width:0;
+ height:0;
+ border-left:18px solid transparent;
+ border-right:18px solid transparent;
+ border-top:38px solid #ffd21f;
+ z-index:5;
+ filter:drop-shadow(0 3px 3px #000);
+}
+.spin{
+ font-size:22px;
+ padding:17px 40px;
+ background:#ffd21f;
+ color:#111;
+}
+.current{
+ font-size:25px;
+ font-weight:bold;
+ margin:8px;
+ color:#ffd21f;
+}
+.challenge{
+ margin:20px auto;
+ background:#11101d;
+ border:2px solid #6c3cff;
+ border-radius:20px;
+ padding:22px;
+ font-size:22px;
+ line-height:1.7;
+ max-width:600px;
+}
+.timer{
+ font-size:42px;
+ font-weight:bold;
+ color:#ffd21f;
+ margin:8px;
+}
+.score{
+ display:flex;
+ justify-content:space-between;
+ background:#17152a;
+ padding:15px 18px;
+ border-radius:14px;
+ margin:8px 0;
+ font-size:19px;
+}
+.small{font-size:14px;color:#aaa}
+.hidden{display:none!important}
+@media(max-width:500px){
+ h1{font-size:31px}
+ h2{font-size:24px}
+ .card{padding:22px 14px}
+ .categories{gap:8px}
+ .cat{padding:15px 5px;font-size:15px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- البداية -->
+<section id="home" class="screen active">
+ <div class="card">
+  <div style="font-size:70px">🎡</div>
+  <h1>عجلة التحديات</h1>
+  <p>لعبة جماعية سريعة وممتعة 🔥</p>
+  <p>إنشاء وتصميم عادل</p>
+  <button class="primary" onclick="showPlayers()">بدء اللعبة</button>
+ </div>
+</section>
+
+<!-- اللاعبين -->
+<section id="playersScreen" class="screen">
+ <div class="card">
+  <h2>👥 أسماء اللاعبين</h2>
+  <p>أدخل من 2 إلى 12 لاعب</p>
+
+  <div id="playerInputs"></div>
+
+  <button onclick="addPlayerInput()">➕ إضافة لاعب</button>
+  <button class="primary" onclick="goCategories()">التالي ➡️</button>
+
+  <div id="playersError" style="color:#ff5555"></div>
+ </div>
+</section>
+
+<!-- التصنيفات -->
+<section id="categoriesScreen" class="screen">
+ <div class="card">
+  <h2>اختر نوع التحدي الي تبيه</h2>
+  <p>تقدر تختار أكثر من نوع</p>
+
+  <div class="categories">
+   <div class="cat" data-cat="funny" onclick="toggleCat(this)">مضحكة 😂</div>
+   <div class="cat" data-cat="smart" onclick="toggleCat(this)">ذكاء 🧠</div>
+   <div class="cat" data-cat="acting" onclick="toggleCat(this)">تمثيل 🎭</div>
+   <div class="cat" data-cat="speed" onclick="toggleCat(this)">سرعة ⚡️</div>
+   <div class="cat" data-cat="bold" onclick="toggleCat(this)">جريئة 😈</div>
+   <div class="cat" data-cat="group" onclick="toggleCat(this)">تحديات 👥</div>
+  </div>
+
+  <button class="primary" onclick="startGame()">🔥 ابدأ التحدي</button>
+  <div id="catError" style="color:#ff5555"></div>
+ </div>
+</section>
+
+<!-- اللعبة -->
+<section id="gameScreen" class="screen">
+ <div class="card">
+  <div class="small">🎡 عجلة اللاعبين</div>
+
+  <div class="current" id="currentPlayer"></div>
+
+  <div class="wheelWrap">
+   <div class="pointer"></div>
+   <canvas id="wheel"></canvas>
+  </div>
+
+  <button class="spin" id="spinBtn" onclick="spinWheel()">🎡 لف العجلة</button>
+
+  <div id="challengeArea" class="hidden">
+   <div class="current" id="challengePlayer"></div>
+   <div id="timer" class="timer hidden">6</div>
+   <div id="challenge" class="challenge"></div>
+
+   <button class="success" id="finishBtn" onclick="finishChallenge()">تم ✅</button>
+   <button class="skip" id="skipBtn" onclick="skipChallenge()">سكيب ⏭️</button>
+  </div>
+ </div>
+</section>
+
+<!-- النتائج -->
+<section id="resultsScreen" class="screen">
+ <div class="card">
+  <h1>🏆 النتائج</h1>
+  <div id="results"></div>
+  <button class="primary" onclick="location.reload()">🔄 لعبة جديدة</button>
+ </div>
+</section>
+
 <script>
 
 let players=[];
-let selectedCategories=[];
-let currentPlayer=0;
-let currentChallenge=null;
-let currentCategory=null;
-let rotation=0;
-
-let timerInterval=null;
-let timeLeft=6;
 let scores={};
+let selectedCategories=[];
+let currentPlayer="";
+let currentCategory="";
+let currentQuestion="";
+let spinning=false;
+let rotation=0;
+let timerInterval=null;
+let usedQuestions={
+ funny:new Set(),
+ smart:new Set(),
+ acting:new Set(),
+ speed:new Set(),
+ bold:new Set(),
+ group:new Set()
+};
 
-let usedQuestions={};
+const questions={
 
-/* =========================
-   عدم تكرار الأسئلة
-========================= */
+funny:[
+"قلد شخصًا من الموجودين لمدة 20 ثانية.",
+"تكلم بصوت طفل لمدة دقيقة.",
+"امشِ كأنك عارض أزياء.",
+"قل جملة عادية وكأنك تبكي.",
+"قلد مذيع أخبار لمدة 30 ثانية.",
+"تكلم بدون استخدام حرف الألف لمدة 20 ثانية.",
+"قل نكتة حتى لو كانت بايخة.",
+"قلد شخصية كرتونية.",
+"تكلم بلهجة مختلفة لمدة دقيقة.",
+"مثل أنك فزت بمليون ريال.",
+"مثل أنك ضيعت جوالك.",
+"تكلم وكأنك روبوت.",
+"ضحك بدون سبب لمدة 15 ثانية.",
+"قل اسمك بطريقة درامية.",
+"مثل أنك مشهور في مقابلة.",
+"امشِ للخلف 10 خطوات.",
+"قل ثلاثة أشياء تحبها بطريقة مضحكة.",
+"قل جملة وأنت تضحك.",
+"مثل أنك مدرس معصب.",
+"مثل أنك طفل يطلب لعبة.",
+"قل خمسة أسماء بسرعة.",
+"تظاهر أنك مذيع طقس.",
+"تكلم كأنك في فيلم أكشن.",
+"مثل أنك تأخرت عن المدرسة.",
+"قل كلمة صعبة خمس مرات.",
+"قل جملة بصوت منخفض جدًا.",
+"قل جملة بصوت عالي جدًا.",
+"مثل أنك في إعلان شامبو.",
+"مثل أنك تبيع قلمًا بمليون ريال.",
+"تظاهر أنك ضايع في مكان غريب.",
+"قل جملة وأنت مغمض عيونك.",
+"مثل أنك شيف مشهور.",
+"مثل أنك حكم مباراة.",
+"تكلم وكأنك في عام 2050.",
+"قل اسم لاعب مشهور بطريقة مضحكة.",
+"تظاهر أنك تكلم شخصًا لا يسمع.",
+"قل جملة وكأنك شرير.",
+"مثل أنك قابلت مشهورًا.",
+"مثل أنك صحيت متأخر.",
+"امشِ وكأن الأرض حارة.",
+"قل كلمة عكسية ثم صححها.",
+"تظاهر أنك تصور إعلان.",
+"قل جملة وكأنك تغنيها.",
+"مثل أنك بائع في سوق.",
+"تكلم وكأنك مذيع راديو.",
+"تظاهر أنك في مسابقة طبخ.",
+"قل ثلاثة أشياء بدون توقف.",
+"مثل أنك مدير مدرسة.",
+"تظاهر أنك فزت بكأس العالم.",
+"قل جملة وأنت تحاول عدم الضحك.",
+"مثل أنك قطة لمدة 15 ثانية.",
+"مثل أنك أسد.",
+"مثل أنك بطريق.",
+"تكلم كأنك آلي.",
+"تظاهر أنك شخصية لعبة.",
+"مثل أنك نائم وترد على أحد.",
+"قل اسمك بثلاث طرق مختلفة.",
+"تظاهر أنك في مصعد مع شخص غريب.",
+"مثل أنك شرطي مرور.",
+"قل جملة وكأنك في مسلسل.",
+"تظاهر أنك نسيت اسمك.",
+"تكلم وكأنك عجوز.",
+"تكلم وكأنك طفل صغير.",
+"مثل أنك مدرب كرة قدم.",
+"تظاهر أنك خسرت تحديًا.",
+"تظاهر أنك ربحت تحديًا.",
+"قل جملة وأنت واقف على رجل واحدة.",
+"امشِ عشر خطوات بطريقة مضحكة.",
+"تظاهر أنك تمشي في الفضاء.",
+"مثل أنك لاعب مشهور.",
+"قل جملة وكأنك في إعلان عصير.",
+"مثل أنك موظف استقبال.",
+"تظاهر أنك تتصل بخدمة العملاء.",
+"تكلم وكأنك في فيلم رعب.",
+"مثل أنك تخاف من شيء صغير.",
+"تظاهر أنك رأيت شيئًا غريبًا.",
+"قل كلمة ثم مثل معناها.",
+"مثل أنك تسوق سيارة سباق.",
+"تظاهر أن سيارتك تعطلت.",
+"قل جملة ببطء شديد.",
+"قل جملة بسرعة شديدة.",
+"مثل أنك تغني بدون صوت.",
+"تظاهر أنك تفهم لغة غير موجودة.",
+"قل جملة وكأنك في مباراة.",
+"مثل أنك مدرب لياقة.",
+"تظاهر أنك تصور سناب.",
+"مثل أنك مؤثر مشهور.",
+"قل نصيحة غريبة.",
+"تظاهر أنك بائع آيسكريم.",
+"مثل أنك حارس أمن.",
+"تكلم وكأنك في مقابلة عمل.",
+"تظاهر أنك نسيت موعدًا مهمًا.",
+"مثل أنك راكب طائرة لأول مرة.",
+"قل جملة وكأنك شاعر.",
+"تظاهر أنك مخرج فيلم.",
+"مثل أنك في مسرح.",
+"قل جملة وكأنها نهاية فيلم.",
+"اختر شخصًا وقلده بطريقة محترمة."
+],
 
-function resetUsedQuestions(){
+smart:[
+"اذكر خمسة عواصم خلال 10 ثوان.",
+"اذكر خمسة حيوانات تبدأ بحرف م.",
+"ما عاصمة السعودية؟",
+"كم عدد أيام السنة الكبيسة؟",
+"ما أكبر كوكب في المجموعة الشمسية؟",
+"كم عدد قارات العالم؟",
+"ما عكس كلمة سريع؟",
+"اذكر ثلاثة كواكب.",
+"كم عدد أضلاع المثلث؟",
+"ما لون الزمرد؟",
+"اذكر ثلاثة بحار.",
+"ما الحيوان المعروف بسفينة الصحراء؟",
+"كم دقيقة في الساعة؟",
+"كم ساعة في اليوم؟",
+"اذكر ثلاثة ألوان.",
+"ما أكبر محيط؟",
+"اذكر ثلاثة أشياء تطفو على الماء.",
+"ما الكوكب الأحمر؟",
+"كم عدد أشهر السنة؟",
+"اذكر خمسة أرقام زوجية.",
+"ما ناتج 7+8؟",
+"ما ناتج 9×5؟",
+"ما نصف 100؟",
+"ما ربع 80؟",
+"اذكر ثلاثة أعداد أولية.",
+"ما عكس الشمال؟",
+"اذكر ثلاثة دول عربية.",
+"ما عاصمة مصر؟",
+"ما عاصمة الإمارات؟",
+"ما عاصمة الكويت؟",
+"ما عاصمة البحرين؟",
+"ما عاصمة قطر؟",
+"ما عاصمة عمان؟",
+"اذكر ثلاثة أنهار.",
+"اذكر ثلاثة جبال.",
+"اذكر ثلاثة حشرات.",
+"اذكر ثلاثة طيور.",
+"اذكر ثلاثة فواكه.",
+"اذكر ثلاثة خضروات.",
+"اذكر ثلاثة مشروبات.",
+"ما الحيوان الأسرع برًا؟",
+"ما الحيوان الأكبر حجمًا؟",
+"كم رجل للعنكبوت؟",
+"كم قلب للأخطبوط؟",
+"كم عدد حروف كلمة كتاب؟",
+"اذكر كلمة تبدأ بحرف س.",
+"اذكر كلمة تنتهي بحرف م.",
+"ما الشيء الذي نراه ولا نستطيع لمسه؟",
+"اذكر ثلاثة أشياء تستخدمها يوميًا.",
+"اذكر ثلاثة أشياء في المطبخ.",
+"اذكر ثلاثة أشياء في المدرسة.",
+"اذكر ثلاثة أشياء في السيارة.",
+"ما الشيء الذي يقيس الحرارة؟",
+"ما الشيء الذي يقيس الوقت؟",
+"ما الشيء الذي نستخدمه للكتابة؟",
+"ما الشيء الذي نستخدمه للقص؟",
+"ما الشيء الذي يضيء في الليل؟",
+"ما مصدر الضوء الطبيعي؟",
+"اذكر ثلاثة أشياء دائرية.",
+"اذكر ثلاثة أشياء مربعة.",
+"اذكر ثلاثة أشياء طويلة.",
+"اذكر ثلاثة أشياء قصيرة.",
+"ما أول شهر في السنة؟",
+"ما آخر شهر في السنة؟",
+"كم يومًا في الأسبوع؟",
+"ما اليوم الذي يأتي بعد الجمعة؟",
+"ما اليوم الذي يأتي قبل الاثنين؟",
+"اذكر أيام الأسبوع كلها.",
+"اذكر أشهر السنة الثلاثة الأولى.",
+"ما أكبر رقم من 8 و3؟",
+"ما أصغر رقم من 7 و4؟",
+"ما ناتج 20-7؟",
+"ما ناتج 6×6؟",
+"ما ناتج 50÷5؟",
+"ما ناتج 12+13؟",
+"ما ناتج 100-45؟",
+"ما نصف 50؟",
+"ما ضعف 15؟",
+"ما ثلاثة أضعاف 10؟",
+"اذكر ثلاثة أرقام فردية.",
+"اذكر ثلاثة أرقام زوجية.",
+"اذكر خمسة أشياء لونها أبيض.",
+"اذكر خمسة أشياء لونها أسود.",
+"اذكر خمسة أشياء لونها أحمر.",
+"اذكر خمسة أشياء لونها أخضر.",
+"اذكر ثلاثة رياضات.",
+"اذكر ثلاثة ألعاب.",
+"اذكر ثلاثة أجهزة إلكترونية.",
+"اذكر ثلاثة تطبيقات.",
+"اذكر ثلاثة مهن.",
+"اذكر ثلاثة مواد دراسية.",
+"اذكر ثلاثة لغات.",
+"اذكر ثلاثة أسماء تبدأ بحرف ع.",
+"اذكر ثلاثة أسماء تبدأ بحرف م.",
+"اذكر ثلاثة أسماء تبدأ بحرف س.",
+"اذكر ثلاثة أشياء تبدأ بحرف ب.",
+"اذكر ثلاثة أشياء تبدأ بحرف ك.",
+"اذكر ثلاثة كلمات فيها حرف ر."
+],
 
-    usedQuestions={};
+acting:[
+"مثل أنك أسد.",
+"مثل أنك شرطي.",
+"مثل أنك طبيب.",
+"مثل أنك معلم.",
+"مثل أنك لاعب كرة.",
+"مثل أنك مذيع.",
+"مثل أنك طيار.",
+"مثل أنك سائق سباق.",
+"مثل أنك طباخ.",
+"مثل أنك بائع.",
+"مثل أنك حارس أمن.",
+"مثل أنك ممثل في فيلم رعب.",
+"مثل أنك في فيلم أكشن.",
+"مثل أنك في مسلسل.",
+"مثل أنك طفل صغير.",
+"مثل أنك رجل آلي.",
+"مثل أنك قطة.",
+"مثل أنك كلب.",
+"مثل أنك حصان.",
+"مثل أنك طائر.",
+"مثل أنك روبوت تعطل.",
+"مثل أنك شخص فاز بجائزة.",
+"مثل أنك شخص خسر مباراة.",
+"مثل أنك شخص يبحث عن شيء ضائع.",
+"مثل أنك تأخرت عن موعد.",
+"مثل أنك رأيت شيئًا مخيفًا.",
+"مثل أنك قابلت مشهورًا.",
+"مثل أنك في مقابلة تلفزيونية.",
+"مثل أنك في إعلان.",
+"مثل أنك تغني أمام جمهور.",
+"مثل أنك ترقص بدون موسيقى.",
+"مثل أنك تتحدث مع شخص لا يراك.",
+"مثل أنك في مصعد عالق.",
+"مثل أنك في طائرة تهتز.",
+"مثل أنك في سيارة سريعة.",
+"مثل أنك تمشي على القمر.",
+"مثل أنك تحت الماء.",
+"مثل أنك في صحراء.",
+"مثل أنك ضائع في مدينة.",
+"مثل أنك مدير شركة.",
+"مثل أنك قائد فريق.",
+"مثل أنك حكم مباراة.",
+"مثل أنك مدرب.",
+"مثل أنك بطل خارق.",
+"مثل أنك شرير.",
+"مثل أنك جاسوس.",
+"مثل أنك محقق.",
+"مثل أنك لص في فيلم.",
+"مثل أنك صحفي.",
+"مثل أنك مصور.",
+"مثل أنك مخرج.",
+"مثل أنك لاعب ألعاب.",
+"مثل أنك ستريمر.",
+"مثل أنك مؤثر.",
+"مثل أنك موظف خدمة عملاء.",
+"مثل أنك موظف استقبال.",
+"مثل أنك نادل.",
+"مثل أنك شيف.",
+"مثل أنك عامل بناء.",
+"مثل أنك مهندس.",
+"مثل أنك ميكانيكي.",
+"مثل أنك مدرس عصبي.",
+"مثل أنك طالب متأخر.",
+"مثل أنك طالب ناسي الواجب.",
+"مثل أنك شخص نسي اسمه.",
+"مثل أنك شخص يبحث عن جواله.",
+"مثل أنك شخص ضيع مفاتيحه.",
+"مثل أنك شخص ينتظر رسالة.",
+"مثل أنك شخص ينتظر الطعام.",
+"مثل أنك شخص جائع جدًا.",
+"مثل أنك شخص عطشان جدًا.",
+"مثل أنك شخص نعسان.",
+"مثل أنك شخص صحى فجأة.",
+"مثل أنك شخص سمع صوتًا غريبًا.",
+"مثل أنك شخص شاف شيء مضحك.",
+"مثل أنك شخص يحاول عدم الضحك.",
+"مثل أنك شخص يحاول فتح باب عالق.",
+"مثل أنك شخص يحاول حمل شيء ثقيل.",
+"مثل أنك شخص يمشي ضد الريح.",
+"مثل أنك شخص يمشي على أرض ساخنة.",
+"مثل أنك شخص يهرب من المطر.",
+"مثل أنك شخص يتزلج.",
+"مثل أنك شخص يصطاد سمكة.",
+"مثل أنك شخص يركب حصان.",
+"مثل أنك شخص يسبح.",
+"مثل أنك شخص يغوص.",
+"مثل أنك شخص يطير.",
+"مثل أنك شخص يركب دراجة.",
+"مثل أنك شخص يقود سيارة.",
+"مثل أنك شخص يركب قطار.",
+"مثل أنك شخص يركب سفينة.",
+"مثل أنك شخص يدخل ملعب.",
+"مثل أنك شخص يفوز بالبطولة.",
+"مثل أنك شخص يستلم ميدالية.",
+"مثل أنك شخص يصور إعلان.",
+"مثل أنك شخص يقدم برنامج.",
+"مثل أنك شخص يختم فيلم."
+],
 
-    selectedCategories.forEach(category=>{
-        usedQuestions[category]=new Set();
-    });
+speed:[
+"اذكر 5 ألوان خلال 6 ثوان.",
+"اذكر 5 أسماء خلال 6 ثوان.",
+"اذكر 5 حيوانات خلال 6 ثوان.",
+"اذكر 5 دول خلال 6 ثوان.",
+"اذكر 5 فواكه خلال 6 ثوان.",
+"اذكر 5 خضروات خلال 6 ثوان.",
+"اذكر 5 مهن خلال 6 ثوان.",
+"اذكر 5 رياضات خلال 6 ثوان.",
+"اذكر 5 ألعاب خلال 6 ثوان.",
+"اذكر 5 تطبيقات خلال 6 ثوان.",
+"اذكر 5 أجهزة خلال 6 ثوان.",
+"اذكر 5 سيارات خلال 6 ثوان.",
+"اذكر 5 أكلات خلال 6 ثوان.",
+"اذكر 5 مشروبات خلال 6 ثوان.",
+"اذكر 5 مدن خلال 6 ثوان.",
+"اذكر 5 عواصم خلال 6 ثوان.",
+"اذكر 5 أشياء في البيت خلال 6 ثوان.",
+"اذكر 5 أشياء في السيارة خلال 6 ثوان.",
+"اذكر 5 أشياء في المدرسة خلال 6 ثوان.",
+"اذكر 5 أشياء في المطبخ خلال 6 ثوان.",
+"اذكر 5 أشياء لونها أبيض خلال 6 ثوان.",
+"اذكر 5 أشياء لونها أسود خلال 6 ثوان.",
+"اذكر 5 أشياء لونها أحمر خلال 6 ثوان.",
+"اذكر 5 أشياء لونها أخضر خلال 6 ثوان.",
+"اذكر 5 كلمات تبدأ بحرف م خلال 6 ثوان.",
+"اذكر 5 كلمات تبدأ بحرف س خلال 6 ثوان.",
+"اذكر 5 كلمات تبدأ بحرف ع خلال 6 ثوان.",
+"اذكر 5 كلمات تبدأ بحرف ب خلال 6 ثوان.",
+"اذكر 5 كلمات تبدأ بحرف ك خلال 6 ثوان.",
+"اذكر 5 كلمات تبدأ بحرف ر خلال 6 ثوان.",
+"قل الأرقام من 1 إلى 10 خلال 6 ثوان.",
+"قل الأرقام من 10 إلى 1 خلال 6 ثوان.",
+"اذكر أيام الأسبوع خلال 6 ثوان.",
+"اذكر أشهر السنة خلال 6 ثوان.",
+"اذكر 5 أرقام زوجية خلال 6 ثوان.",
+"اذكر 5 أرقام فردية خلال 6 ثوان.",
+"اذكر 5 أسماء أولاد خلال 6 ثوان.",
+"اذكر 5 أسماء بنات خلال 6 ثوان.",
+"اذكر 5 حيوانات بحرية خلال 6 ثوان.",
+"اذكر 5 طيور خلال 6 ثوان.",
+"اذكر 5 حشرات خلال 6 ثوان.",
+"اذكر 5 أشياء دائرية خلال 6 ثوان.",
+"اذكر 5 أشياء مربعة خلال 6 ثوان.",
+"اذكر 5 أشياء طويلة خلال 6 ثوان.",
+"اذكر 5 أشياء صغيرة خلال 6 ثوان.",
+"اذكر 5 دول عربية خلال 6 ثوان.",
+"اذكر 5 لغات خلال 6 ثوان.",
+"اذكر 5 مواد دراسية خلال 6 ثوان.",
+"اذكر 5 مهن خلال 6 ثوان.",
+"اذكر 5 شخصيات مشهورة خلال 6 ثوان.",
+"اذكر 5 ألعاب جماعية خلال 6 ثوان.",
+"اذكر 5 أشياء تستخدمها يوميًا خلال 6 ثوان.",
+"اذكر 5 أشياء تشتريها من البقالة خلال 6 ثوان.",
+"اذكر 5 أشياء تأخذها معك للمدرسة خلال 6 ثوان.",
+"اذكر 5 أشياء تأخذها في السفر خلال 6 ثوان.",
+"اذكر 5 أشياء تجدها في الشارع خلال 6 ثوان.",
+"اذكر 5 أشياء تجدها في المكتب خلال 6 ثوان.",
+"اذكر 5 أشياء تجدها في غرفة النوم خلال 6 ثوان.",
+"اذكر 5 أشياء تجدها في الحمام خلال 6 ثوان.",
+"اذكر 5 أشياء تجدها في الحديقة خلال 6 ثوان.",
+"اذكر 5 أشياء تتحرك خلال 6 ثوان.",
+"اذكر 5 أشياء ثابتة خلال 6 ثوان.",
+"اذكر 5 أشياء ساخنة خلال 6 ثوان.",
+"اذكر 5 أشياء باردة خلال 6 ثوان.",
+"اذكر 5 أشياء ناعمة خلال 6 ثوان.",
+"اذكر 5 أشياء صلبة خلال 6 ثوان.",
+"اذكر 5 أشياء ثقيلة خلال 6 ثوان.",
+"اذكر 5 أشياء خفيفة خلال 6 ثوان.",
+"اذكر 5 أشياء تلمع خلال 6 ثوان.",
+"اذكر 5 أشياء تصدر صوتًا خلال 6 ثوان.",
+"اذكر 5 أشياء تستخدم الكهرباء خلال 6 ثوان.",
+"اذكر 5 أشياء تستخدم البطارية خلال 6 ثوان.",
+"اذكر 5 أشياء لها عجلات خلال 6 ثوان.",
+"اذكر 5 أشياء لها أبواب خلال 6 ثوان.",
+"اذكر 5 أشياء لها شاشة خلال 6 ثوان.",
+"اذكر 5 أشياء لها أزرار خلال 6 ثوان.",
+"اذكر 5 أشياء لها مقبض خلال 6 ثوان.",
+"اذكر 5 أشياء تشربها خلال 6 ثوان.",
+"اذكر 5 أشياء تأكلها خلال 6 ثوان.",
+"اذكر 5 أشياء تلبسها خلال 6 ثوان.",
+"اذكر 5 أشياء تحملها خلال 6 ثوان.",
+"اذكر 5 أشياء تفتحها خلال 6 ثوان.",
+"اذكر 5 أشياء تغلقها خلال 6 ثوان.",
+"اذكر 5 أشياء تنظفها خلال 6 ثوان.",
+"اذكر 5 أشياء ترميها خلال 6 ثوان.",
+"اذكر 5 أشياء تجمعها خلال 6 ثوان.",
+"اذكر 5 أماكن تذهب لها خلال 6 ثوان.",
+"اذكر 5 أماكن للترفيه خلال 6 ثوان.",
+"اذكر 5 أماكن للعمل خلال 6 ثوان.",
+"اذكر 5 أماكن للأكل خلال 6 ثوان.",
+"اذكر 5 أماكن للسفر خلال 6 ثوان.",
+"اذكر 5 أشياء في البحر خلال 6 ثوان.",
+"اذكر 5 أشياء في البر خلال 6 ثوان.",
+"اذكر 5 أشياء في السماء خلال 6 ثوان.",
+"اذكر 5 أشياء تحت الأرض خلال 6 ثوان.",
+"اذكر 5 أشياء في الثلاجة خلال 6 ثوان.",
+"اذكر 5 أشياء في الحقيبة خلال 6 ثوان.",
+"اذكر 5 أشياء على المكتب خلال 6 ثوان.",
+"اذكر 5 أشياء في الجيب خلال 6 ثوان.",
+"اذكر 5 أشياء في السيارة خلال 6 ثوان."
+],
+
+bold:[
+"قل لشخص بجانبك شيئًا إيجابيًا عنه.",
+"اعترف بأكثر موقف ضحكت عليه.",
+"قل أكثر شيء يخوفك.",
+"قل موقفًا محرجًا حصل لك.",
+"قل أكثر عادة غريبة عندك.",
+"قل شيئًا لا يعرفه عنك أغلب الموجودين.",
+"اختر لاعبًا وقل له مجاملة.",
+"اختر لاعبًا وقل له صفة جميلة.",
+"قل أكثر شيء يزعجك.",
+"قل أكثر شيء يسعدك.",
+"قل آخر شيء ضحكك.",
+"قل موقفًا لن تنساه.",
+"قل أكثر أكلة تحبها.",
+"قل أكثر مكان تحب تروحه.",
+"قل شخصًا تتمنى تقابله.",
+"قل هدفًا تتمنى تحققه.",
+"قل شيئًا تتمنى تتعلمه.",
+"قل أكثر شيء تندم عليه من ناحية بسيطة.",
+"قل موقفًا كنت فيه شجاعًا.",
+"قل موقفًا كنت فيه متوترًا.",
+"قل شيئًا تخجل منه بشكل طريف.",
+"قل عادة تريد تغييرها.",
+"قل مهارة تتمنى تكون عندك.",
+"قل أكثر شيء يحمسك.",
+"قل أكثر شيء يطفشك.",
+"قل موقفًا ضحكت فيه بوقت غلط.",
+"قل أغرب حلم تتذكره.",
+"قل أغرب أكلة جربتها.",
+"قل أغرب مكان زرته.",
+"قل أكثر كلمة تقولها.",
+"قل أكثر تطبيق تستخدمه.",
+"قل أكثر لعبة تحبها.",
+"قل أكثر فيلم تتذكره.",
+"قل شخصية تعجبك.",
+"قل شخصًا تعلمت منه شيئًا.",
+"قل نصيحة تتذكرها دائمًا.",
+"قل قرارًا كنت سعيدًا به.",
+"قل شيئًا تتمنى يرجع.",
+"قل شيئًا تتمنى ما يتكرر.",
+"قل أكثر شيء يرفع مزاجك.",
+"قل أكثر شيء ينرفزك.",
+"قل أكثر موقف ضحكت فيه مع أصحابك.",
+"قل موقفًا صار لك في المدرسة.",
+"قل موقفًا صار لك في سفر.",
+"قل موقفًا صار لك في مطعم.",
+"قل موقفًا صار لك في السوق.",
+"قل موقفًا صار لك مع صديق.",
+"قل موقفًا صار لك مع العائلة.",
+"قل شيء تفضله على شيء مشهور.",
+"قل شيء لا تحبه والناس يحبونه.",
+"قل شيء تحبه والناس قد لا يحبونه.",
+"اختر لاعبًا واسأله سؤالًا محترمًا.",
+"اختر لاعبًا وقل له تحديًا بسيطًا.",
+"اختر لاعبًا وقل له توقعًا عنه.",
+"قل أول انطباع أخذته عن شخص هنا.",
+"قل شيئًا تتمنى أن تجربه.",
+"قل مكانًا تتمنى تزوره.",
+"قل دولة تتمنى تسافر لها.",
+"قل رياضة تتمنى تجربها.",
+"قل هواية تتمنى تبدأها.",
+"قل وظيفة تتمنى تجربها يومًا.",
+"قل أكثر شيء تفتخر فيه.",
+"قل إنجازًا صغيرًا تحبه.",
+"قل عادة جيدة عندك.",
+"قل صفة تحبها في نفسك.",
+"قل صفة تريد تحسينها.",
+"قل شيء تتعلمه بسرعة.",
+"قل شيء تجد صعوبة فيه.",
+"قل موقفًا كنت فيه محظوظًا.",
+"قل موقفًا لم يحالفك الحظ فيه.",
+"قل آخر هدية فرحت بها.",
+"قل أفضل يوم تتذكره.",
+"قل أكثر يوم متعب تتذكره.",
+"قل شيء يجعلك تضحك فورًا.",
+"قل شيء يجعلك هادئًا.",
+"قل شيء يجعلك متحمسًا.",
+"قل شيء كنت تخاف منه وتجاوزته.",
+"قل أكثر مكان ترتاح فيه.",
+"قل أكثر وقت تحبه في اليوم.",
+"قل أكثر فصل تحبه.",
+"قل أكثر لون تحبه.",
+"قل أكثر رقم تحبه.",
+"قل أكثر رياضة تحبها.",
+"قل أكثر لعبة لعبتها.",
+"قل أكثر أكلة تقدر تأكلها دائمًا.",
+"قل أكثر مشروب تحبه.",
+"قل أكثر نوع موسيقى تحبه.",
+"قل أكثر شيء تحبه في أصحابك.",
+"قل شيء تتمنى أن يعرفه الناس عنك.",
+"قل موقفًا تعلمت منه درسًا.",
+"قل شخصًا تشكره على شيء.",
+"قل شيئًا أنت ممتن له.",
+"قل حلمًا من أحلامك.",
+"قل شيء تريد إنجازه هذا العام.",
+"قل شيئًا ستفعله لو كان عندك يوم إجازة كامل.",
+"قل شيئًا تختاره لو قدرت تسافر الآن.",
+"قل شيئًا تتمنى تجربته مرة واحدة."
+],
+
+group:[
+"اختر شخصًا وقل له تحديًا بسيطًا.",
+"كل الموجودين يقولون لونًا بالتناوب.",
+"كل لاعب يقول اسمه بطريقة مختلفة.",
+"اختر شخصين لعمل تحدي مشترك.",
+"الجميع يقول كلمة تبدأ بحرف م.",
+"الجميع يقول أكلة يحبها.",
+"الجميع يقول مدينة يتمنى زيارتها.",
+"اختر شخصًا وقلده.",
+"الجميع يصفق مرة واحدة في نفس الوقت.",
+"الجميع يقول رقمًا من 1 إلى 10.",
+"اختر شخصًا وقل له مجاملة.",
+"الجميع يقول اسم حيوان.",
+"الجميع يقول اسم دولة.",
+"الجميع يقول رياضة.",
+"الجميع يقول لونًا.",
+"اختر شخصًا ليمثل معك مشهدًا.",
+"الجميع يقول كلمة مضحكة.",
+"الجميع يرفع يده إذا يحب السفر.",
+"الجميع يختار بين البحر والبر.",
+"الجميع يختار بين الليل والنهار.",
+"اختر شخصًا واسأله سؤالًا.",
+"الجميع يقول أكلة لا يحبها.",
+"الجميع يقول لعبة يحبها.",
+"الجميع يقول تطبيقًا يستخدمه.",
+"الجميع يقول شيئًا في جيبه.",
+"اختر شخصًا وقل له توقعًا عنه.",
+"الجميع يقول اسمًا يبدأ بحرف ع.",
+"الجميع يقول اسمًا يبدأ بحرف س.",
+"الجميع يقول اسمًا يبدأ بحرف أ.",
+"الجميع يقول اسمًا يبدأ بحرف م.",
+"اختر شخصين وخلهم يتنافسون.",
+"الجميع يقول رقمًا زوجيًا.",
+"الجميع يقول رقمًا فرديًا.",
+"الجميع يقول شيئًا لونه أسود.",
+"الجميع يقول شيئًا لونه أبيض.",
+"الجميع يقول شيئًا لونه أحمر.",
+"الجميع يقول شيئًا لونه أخضر.",
+"اختر شخصًا ليبدأ قصة قصيرة.",
+"كل لاعب يكمل كلمة اللاعب السابق.",
+"الجميع يقول كلمة من ثلاثة أحرف.",
+"الجميع يقول كلمة طويلة.",
+"اختر لاعبًا ليقلد شخصية.",
+"اختر لاعبًا ليقول نكتة.",
+"الجميع يقول شيئًا يضحكه.",
+"الجميع يقول مكانًا يحبه.",
+"الجميع يقول شيئًا يخاف منه.",
+"اختر شخصًا ليغني جملة.",
+"اختر شخصًا ليمثل مشهدًا.",
+"الجميع يقول مهنة.",
+"الجميع يقول مادة دراسية.",
+"الجميع يقول جهازًا إلكترونيًا.",
+"الجميع يقول سيارة.",
+"الجميع يقول فاكهة.",
+"الجميع يقول خضار.",
+"الجميع يقول طائرًا.",
+"الجميع يقول حشرة.",
+"الجميع يقول حيوانًا بحريًا.",
+"اختر لاعبين لعمل تحدي سرعة.",
+"الجميع يقول شيئًا يستخدمه يوميًا.",
+"الجميع يقول شيئًا موجودًا في البيت.",
+"الجميع يقول شيئًا موجودًا في السيارة.",
+"الجميع يقول شيئًا موجودًا في المدرسة.",
+"الجميع يقول شيئًا موجودًا في المطبخ.",
+"الجميع يقول شيئًا موجودًا في الشارع.",
+"الجميع يقول شيئًا موجودًا في الحديقة.",
+"اختر لاعبًا ليكون قائد الجولة.",
+"الجميع يختار لاعبًا يبدأ بالتصفيق.",
+"اختر شخصًا وقل له كلمة عشوائية.",
+"الجميع يقول كلمة تبدأ بحرف ب.",
+"الجميع يقول كلمة تبدأ بحرف ك.",
+"الجميع يقول كلمة تبدأ بحرف ر.",
+"الجميع يقول كلمة تبدأ بحرف ن.",
+"الجميع يقول كلمة تبدأ بحرف ت.",
+"الجميع يقول شيئًا دائريًا.",
+"الجميع يقول شيئًا مربعًا.",
+"الجميع يقول شيئًا طويلًا.",
+"الجميع يقول شيئًا قصيرًا.",
+"اختر شخصًا ليمثل أنه مذيع.",
+"اختر شخصًا ليمثل أنه شرطي.",
+"اختر شخصًا ليمثل أنه طبيب.",
+"اختر شخصًا ليمثل أنه لاعب.",
+"الجميع يقول كلمة بدون حرف الألف.",
+"الجميع يقول كلمة فيها حرف ر.",
+"الجميع يقول كلمة فيها حرف م.",
+"الجميع يقول شيئًا يبدأ بحرف د.",
+"الجميع يقول شيئًا يبدأ بحرف ف.",
+"الجميع يقول شيئًا يبدأ بحرف ل.",
+"الجميع يقول شيئًا يبدأ بحرف و.",
+"اختر شخصًا ليطرح سؤالًا للجميع.",
+"اختر شخصًا ليبدأ تحديًا.",
+"الجميع يقول أكثر شيء يحبه.",
+"الجميع يقول أكثر شيء يكرهه.",
+"الجميع يقول مكانًا يريد زيارته.",
+"الجميع يقول حلمًا يريد تحقيقه.",
+"اختر شخصًا وقل له شكرًا على شيء.",
+"الجميع يقول كلمة أخيرة قبل الدور التالي."
+]
+
+};
+
+function showScreen(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
 }
-
-/* =========================
-   صفحة اللاعبين
-========================= */
 
 function showPlayers(){
-
-    document.getElementById("startPage").classList.add("hidden");
-    document.getElementById("playersPage").classList.remove("hidden");
-
-    if(!document.querySelector("#playersInputs input")){
-        addPlayer();
-        addPlayer();
-    }
+ showScreen("playersScreen");
+ if(document.querySelectorAll(".playerRow").length===0){
+  addPlayerInput();
+  addPlayerInput();
+ }
 }
 
-/* إضافة لاعب */
+function addPlayerInput(){
+ const box=document.getElementById("playerInputs");
+ if(box.children.length>=12)return;
 
-function addPlayer(){
+ const row=document.createElement("div");
+ row.className="playerRow";
 
-    const box=document.getElementById("playersInputs");
+ const input=document.createElement("input");
+ input.placeholder="اسم اللاعب "+(box.children.length+1);
+ input.maxLength=20;
 
-    if(box.children.length>=12){
+ const del=document.createElement("button");
+ del.textContent="✖";
+ del.className="danger";
+ del.onclick=()=>row.remove();
 
-        alert("الحد الأقصى 12 لاعب");
-
-        return;
-    }
-
-    const input=document.createElement("input");
-
-    input.placeholder=
-        `اسم اللاعب ${box.children.length+1}`;
-
-    box.appendChild(input);
+ row.appendChild(input);
+ row.appendChild(del);
+ box.appendChild(row);
 }
-
-/* الانتقال لاختيار التحديات */
 
 function goCategories(){
+ const inputs=[...document.querySelectorAll("#playerInputs input")];
 
-    const names=[
-        ...document.querySelectorAll(
-            "#playersInputs input"
-        )
-    ]
-    .map(i=>i.value.trim())
-    .filter(Boolean);
+ players=inputs.map(i=>i.value.trim()).filter(Boolean);
 
-    if(names.length<2){
+ if(players.length<2){
+  document.getElementById("playersError").textContent="لازم تدخل لاعبين على الأقل";
+  return;
+ }
 
-        alert("أدخل اسم لاعبين على الأقل");
+ if(players.length>12){
+  document.getElementById("playersError").textContent="الحد الأقصى 12 لاعب";
+  return;
+ }
 
-        return;
-    }
+ if(new Set(players).size!==players.length){
+  document.getElementById("playersError").textContent="لا تكرر اسم اللاعب";
+  return;
+ }
 
-    players=names;
+ scores={};
+ players.forEach(p=>scores[p]=0);
 
-    scores={};
-
-    players.forEach(player=>{
-        scores[player]=0;
-    });
-
-    currentPlayer=0;
-
-    document.getElementById(
-        "playersPage"
-    ).classList.add("hidden");
-
-    document.getElementById(
-        "categoriesPage"
-    ).classList.remove("hidden");
+ document.getElementById("playersError").textContent="";
+ showScreen("categoriesScreen");
 }
 
-/* =========================
-   اختيار أنواع التحديات
-========================= */
-
-function toggleCategory(element,name){
-
-    element.classList.toggle("selected");
-
-    if(selectedCategories.includes(name)){
-
-        selectedCategories=
-            selectedCategories.filter(
-                x=>x!==name
-            );
-
-    }else{
-
-        selectedCategories.push(name);
-    }
+function toggleCat(el){
+ el.classList.toggle("selected");
 }
-
-/* بدء اللعبة */
 
 function startGame(){
+ selectedCategories=[...document.querySelectorAll(".cat.selected")]
+  .map(x=>x.dataset.cat);
 
-    if(!selectedCategories.length){
+ if(selectedCategories.length===0){
+  document.getElementById("catError").textContent="اختر نوع تحدي واحد على الأقل";
+  return;
+ }
 
-        alert("اختر نوع تحدي واحد على الأقل");
-
-        return;
-    }
-
-    resetUsedQuestions();
-
-    document.getElementById(
-        "categoriesPage"
-    ).classList.add("hidden");
-
-    document.getElementById(
-        "wheelArea"
-    ).style.display="block";
-
-    buildWheel();
+ document.getElementById("catError").textContent="";
+ drawWheel();
+ showScreen("gameScreen");
 }
 
-/* =========================
-   بناء عجلة اللاعبين
-========================= */
+function drawWheel(){
+ const canvas=document.getElementById("wheel");
+ const ctx=canvas.getContext("2d");
 
-function buildWheel(){
+ const size=700;
+ canvas.width=size;
+ canvas.height=size;
 
-    const wheel=
-        document.getElementById("wheel");
+ const center=size/2;
+ const radius=size/2-5;
+ const slice=(Math.PI*2)/players.length;
 
-    const n=players.length;
+ const colors=[
+  "#6c3cff",
+  "#ff3b81",
+  "#00bcd4",
+  "#ff9800",
+  "#21c77a",
+  "#e91e63",
+  "#795548",
+  "#3f51b5",
+  "#9c27b0",
+  "#009688",
+  "#f44336",
+  "#607d8b"
+ ];
 
-    const colors=[
-        "#7c3cff",
-        "#ff3b4d",
-        "#00a8ff",
-        "#00c853",
-        "#ff9800",
-        "#e91e63",
-        "#673ab7",
-        "#009688",
-        "#795548",
-        "#3f51b5",
-        "#f44336",
-        "#8bc34a"
-    ];
+ ctx.clearRect(0,0,size,size);
 
-    wheel.innerHTML="";
+ players.forEach((name,i)=>{
+  const start=-Math.PI/2+i*slice;
 
-    wheel.style.background=
-        `conic-gradient(${
-            players
-            .map((_,i)=>
-                `${colors[i%colors.length]}
-                ${i*100/n}%
-                ${(i+1)*100/n}%`
-            )
-            .join(",")
-        })`;
+  ctx.beginPath();
+  ctx.moveTo(center,center);
+  ctx.arc(center,center,radius,start,start+slice);
+  ctx.closePath();
 
-    players.forEach((name,i)=>{
+  ctx.fillStyle=colors[i%colors.length];
+  ctx.fill();
 
-        const label=
-            document.createElement("div");
+  ctx.strokeStyle="#fff";
+  ctx.lineWidth=4;
+  ctx.stroke();
 
-        label.className="segment-name";
+  ctx.save();
+  ctx.translate(center,center);
+  ctx.rotate(start+slice/2);
 
-        const angle=
-            (i+.5)*360/n-90;
+  ctx.textAlign="right";
+  ctx.textBaseline="middle";
+  ctx.fillStyle="#fff";
+  ctx.font="bold 25px Arial";
 
-        const radius=38;
+  let text=name;
+  if(text.length>13)text=text.substring(0,13)+"…";
 
-        label.style.left=
-            `${50+
-            radius*
-            Math.cos(
-                angle*Math.PI/180
-            )}%`;
+  ctx.fillText(text,radius-25,0);
+  ctx.restore();
+ });
 
-        label.style.top=
-            `${50+
-            radius*
-            Math.sin(
-                angle*Math.PI/180
-            )}%`;
+ ctx.beginPath();
+ ctx.arc(center,center,55,0,Math.PI*2);
+ ctx.fillStyle="#111";
+ ctx.fill();
+ ctx.strokeStyle="#fff";
+ ctx.lineWidth=4;
+ ctx.stroke();
 
-        label.textContent=name;
-
-        wheel.appendChild(label);
-    });
+ ctx.fillStyle="#ffd21f";
+ ctx.font="bold 24px Arial";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText("🎡",center,center);
 }
-
-/* =========================
-   لف العجلة
-========================= */
 
 function spinWheel(){
 
-    if(
-        !players.length ||
-        !selectedCategories.length
-    ){
+ if(spinning)return;
 
-        return;
-    }
+ spinning=true;
+
+ clearInterval(timerInterval);
+
+ document.getElementById("challengeArea").classList.add("hidden");
+ document.getElementById("spinBtn").disabled=true;
+
+ const count=players.length;
+ const slice=360/count;
+
+ const index=Math.floor(Math.random()*count);
+
+ currentPlayer=players[index];
+
+ const target=360-(index*slice+slice/2);
+
+ rotation += 360*5 + target;
+
+ document.getElementById("wheel").style.transform=
+   `rotate(${rotation}deg)`;
+
+ setTimeout(()=>{
+
+  document.getElementById("currentPlayer").textContent=
+   "🔥 "+currentPlayer;
+
+  showChallenge();
+
+  spinning=false;
+  document.getElementById("spinBtn").disabled=false;
+
+ },4100);
+}
+
+function getQuestion(){
+
+ const available=[];
+
+ selectedCategories.forEach(cat=>{
+  const list=questions[cat];
+
+  list.forEach((q,i)=>{
+   if(!usedQuestions[cat].has(i)){
+    available.push({cat:cat,index:i,text:q});
+   }
+  });
+ });
+
+ if(available.length===0){
+
+  Object.keys(usedQuestions).forEach(cat=>{
+   usedQuestions[cat].clear();
+  });
+
+  return getQuestion();
+ }
+
+ const chosen=available[Math.floor(Math.random()*available.length)];
+
+ usedQuestions[chosen.cat].add(chosen.index);
+
+ return chosen;
+}
+
+function showChallenge(){
+
+ const chosen=getQuestion();
+
+ currentCategory=chosen.cat;
+ currentQuestion=chosen.text;
+
+ document.getElementById("challengePlayer").textContent=
+   "🔥 "+currentPlayer;
+
+ document.getElementById("challenge").textContent=
+   currentQuestion;
+
+ document.getElementById("challengeArea").classList.remove("hidden");
+
+ document.getElementById("finishBtn").disabled=false;
+ document.getElementById("skipBtn").disabled=false;
+
+ const timer=document.getElementById("timer");
+
+ if(currentCategory==="speed"){
+
+  timer.classList.remove("hidden");
+
+  let seconds=6;
+  timer.textContent=seconds;
+
+  clearInterval(timerInterval);
+
+  timerInterval=setInterval(()=>{
+
+   seconds--;
+   timer.textContent=seconds;
+
+   if(seconds<=0){
 
     clearInterval(timerInterval);
 
-    document.getElementById(
-        "spinBtn"
-    ).disabled=true;
+    document.getElementById("finishBtn").disabled=true;
+    document.getElementById("skipBtn").disabled=true;
 
-    document.getElementById(
-        "challengeBox"
-    ).style.display="none";
-
-    document.getElementById(
-        "timeMessage"
-    ).style.display="none";
-
-    /*
-      اختيار لاعب عشوائي
-    */
-
-    const playerIndex=
-        Math.floor(
-            Math.random()*players.length
-        );
-
-    /*
-      اللاعب الذي وقف عليه السهم
-    */
-
-    currentPlayer=playerIndex;
-
-    const n=players.length;
-
-    const target=
-        360-
-        (playerIndex+.5)*360/n;
-
-    rotation+=
-        1440+
-        target-
-        (rotation%360);
-
-    document.getElementById(
-        "wheel"
-    ).style.transform=
-        `rotate(${rotation}deg)`;
-
-    /*
-      بعد توقف العجلة
-      نختار نوع تحدي عشوائي
-    */
+    timer.textContent="انتهى الوقت!";
 
     setTimeout(()=>{
+     nextTurn();
+    },700);
+   }
 
-        const categoryIndex=
-            Math.floor(
-                Math.random()*
-                selectedCategories.length
-            );
+  },1000);
 
-        showChallenge(
-            selectedCategories[
-                categoryIndex
-            ]
-        );
+ }else{
 
-    },5200);
+  clearInterval(timerInterval);
+  timer.classList.add("hidden");
+ }
 }
-
-/* =========================
-   عرض التحدي
-========================= */
-
-function showChallenge(category){
-
-    currentCategory=category;
-
-    const list=
-        data[category] || [];
-
-    /*
-      إذا خلصت أسئلة التصنيف
-    */
-
-    if(
-        !usedQuestions[category] ||
-        usedQuestions[category].size>=list.length
-    ){
-
-        alert(
-            `خلصت كل أسئلة ${category} 🎉`
-        );
-
-        document.getElementById(
-            "spinBtn"
-        ).disabled=false;
-
-        return;
-    }
-
-    /*
-      الأسئلة المتبقية
-    */
-
-    const availableQuestions=
-        list.filter(
-            question=>
-                !usedQuestions[
-                    category
-                ].has(question)
-        );
-
-    /*
-      اختيار سؤال جديد
-    */
-
-    const randomIndex=
-        Math.floor(
-            Math.random()*
-            availableQuestions.length
-        );
-
-    currentChallenge=
-        availableQuestions[
-            randomIndex
-        ];
-
-    /*
-      تسجيل السؤال
-      حتى لا يظهر مرة ثانية
-    */
-
-    usedQuestions[
-        category
-    ].add(currentChallenge);
-
-    /*
-      إظهار اسم اللاعب
-      الذي وقف عليه السهم
-    */
-
-    document.getElementById(
-        "turnName"
-    ).textContent=
-        `🔥 ${players[currentPlayer]}`;
-
-    document.getElementById(
-        "turnName"
-    ).style.display="block";
-
-    document.getElementById(
-        "challengeText"
-    ).textContent=
-        currentChallenge;
-
-    document.getElementById(
-        "challengeBox"
-    ).style.display="block";
-
-    document.getElementById(
-        "finishBtn"
-    ).disabled=false;
-
-    document.getElementById(
-        "skipBtn"
-    ).disabled=false;
-
-    document.getElementById(
-        "timeMessage"
-    ).style.display="none";
-
-    /*
-      مؤقت السرعة فقط
-    */
-
-    if(category==="سرعة ⚡️"){
-
-        startTimer();
-
-    }else{
-
-        document.getElementById(
-            "timer"
-        ).style.display="none";
-    }
-}
-
-/* =========================
-   مؤقت ٦ ثواني
-========================= */
-
-function startTimer(){
-
-    clearInterval(timerInterval);
-
-    timeLeft=6;
-
-    const timer=
-        document.getElementById("timer");
-
-    timer.style.display="block";
-
-    timer.textContent="⏱️ 6";
-
-    timerInterval=
-        setInterval(()=>{
-
-            timeLeft--;
-
-            timer.textContent=
-                `⏱️ ${timeLeft}`;
-
-            if(timeLeft<=0){
-
-                clearInterval(
-                    timerInterval
-                );
-
-                timerInterval=null;
-
-                timer.style.display="none";
-
-                document.getElementById(
-                    "timeMessage"
-                ).style.display="block";
-
-                /*
-                  انتهى الوقت
-                  بدون نقطة
-                */
-
-                document.getElementById(
-                    "finishBtn"
-                ).disabled=true;
-
-                document.getElementById(
-                    "skipBtn"
-                ).disabled=true;
-
-                setTimeout(()=>{
-
-                    nextTurn();
-
-                },700);
-            }
-
-        },1000);
-}
-
-/* =========================
-   تم = نقطة للاعب
-========================= */
 
 function finishChallenge(){
 
-    if(
-        document.getElementById(
-            "finishBtn"
-        ).disabled
-    ){
+ if(spinning)return;
 
-        return;
-    }
+ clearInterval(timerInterval);
 
-    clearInterval(timerInterval);
+ if(!currentPlayer)return;
 
-    timerInterval=null;
+ scores[currentPlayer]++;
 
-    /*
-      النقطة تروح للاعب
-      الذي وقف عليه السهم
-    */
-
-    const player=
-        players[currentPlayer];
-
-    scores[player]++;
-
-    nextTurn();
+ nextTurn();
 }
-
-/* =========================
-   سكيب = بدون نقطة
-========================= */
 
 function skipChallenge(){
 
-    clearInterval(timerInterval);
+ clearInterval(timerInterval);
 
-    timerInterval=null;
-
-    nextTurn();
+ nextTurn();
 }
-
-/* =========================
-   اللاعب التالي
-========================= */
 
 function nextTurn(){
 
-    clearInterval(timerInterval);
+ document.getElementById("challengeArea").classList.add("hidden");
 
-    timerInterval=null;
+ document.getElementById("finishBtn").disabled=false;
+ document.getElementById("skipBtn").disabled=false;
 
-    document.getElementById(
-        "challengeBox"
-    ).style.display="none";
+ document.getElementById("timer").classList.add("hidden");
 
-    document.getElementById(
-        "timeMessage"
-    ).style.display="none";
+ document.getElementById("currentPlayer").textContent="";
 
-    document.getElementById(
-        "timer"
-    ).style.display="none";
-
-    document.getElementById(
-        "finishBtn"
-    ).disabled=false;
-
-    document.getElementById(
-        "skipBtn"
-    ).disabled=false;
-
-    /*
-      هنا ما نغير اللاعب يدويًا
-      لأن اللاعب القادم يتحدد
-      من السهم في اللفة القادمة
-    */
-
-    document.getElementById(
-        "spinBtn"
-    ).disabled=false;
 }
 
-/* =========================
-   النتائج
-========================= */
+function showResults(){
 
-function endGame(){
+ clearInterval(timerInterval);
 
-    clearInterval(timerInterval);
+ const sorted=[...players].sort((a,b)=>scores[b]-scores[a]);
 
-    document.getElementById(
-        "wheelArea"
-    ).style.display="none";
+ const box=document.getElementById("results");
 
-    document.getElementById(
-        "results"
-    ).style.display="block";
+ box.innerHTML="";
 
-    const ranking=
-        document.getElementById(
-            "ranking"
-        );
+ sorted.forEach((p,i)=>{
 
-    ranking.innerHTML="";
+  const row=document.createElement("div");
+  row.className="score";
 
-    Object.entries(scores)
-        .sort((a,b)=>b[1]-a[1])
-        .forEach(([name,score],i)=>{
+  row.innerHTML=
+   `<span>${i+1}. ${escapeHTML(p)}</span>
+    <strong>${scores[p]} نقطة</strong>`;
 
-            const div=
-                document.createElement("div");
+  box.appendChild(row);
+ });
 
-            div.className="rank";
-
-            let medal="";
-
-            if(i===0)
-                medal="🥇";
-
-            else if(i===1)
-                medal="🥈";
-
-            else if(i===2)
-                medal="🥉";
-
-            div.textContent=
-                `${medal} ${i+1}. ${name} — ${score} نقطة`;
-
-            ranking.appendChild(div);
-        });
+ showScreen("resultsScreen");
 }
+
+function escapeHTML(text){
+
+ const div=document.createElement("div");
+ div.textContent=text;
+ return div.innerHTML;
+
+}
+
+window.addEventListener("beforeunload",()=>{
+ clearInterval(timerInterval);
+});
 
 </script>
+
+</body>
+</html>
